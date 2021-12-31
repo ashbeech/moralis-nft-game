@@ -8,10 +8,10 @@ import {
 } from "react-router-dom";
 import Account from "components/Account/Account";
 import Chains from "components/Chains";
-//import TokenPrice from "components/TokenPrice";
+import TokenPrice from "components/TokenPrice";
 import ERC20Balance from "components/ERC20Balance";
 import ERC20Transfers from "components/ERC20Transfers";
-import InchDex from "components/InchDex";
+import DEX from "components/DEX";
 import NFTBalance from "components/NFTBalance";
 import Wallet from "components/Wallet";
 import { Layout, Tabs } from "antd";
@@ -60,7 +60,9 @@ const App = ({ isServerInfo }) => {
     useMoralis();
 
   useEffect(() => {
-    if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) enableWeb3();
+    const connectorId = window.localStorage.getItem("connectorId");
+    if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading)
+      enableWeb3({ provider: connectorId });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, isWeb3Enabled]);
 
@@ -72,12 +74,12 @@ const App = ({ isServerInfo }) => {
           <MenuItems />
           <div style={styles.headerRight}>
             <Chains />
-            {/*             <TokenPrice
+            <TokenPrice
               address="0x1f9840a85d5af5bf1d1762f925bdaddc4201f984"
               chain="eth"
               image="https://cloudflare-ipfs.com/ipfs/QmXttGpZrECX5qCyXbBQiqgQNytVGeZW5Anewvh2jc4psg/"
               size="40px"
-            /> */}
+            />
             <NativeBalance />
             <Account />
           </div>
@@ -94,13 +96,13 @@ const App = ({ isServerInfo }) => {
             <Route path="/1inch">
               <Tabs defaultActiveKey="1" style={{ alignItems: "center" }}>
                 <Tabs.TabPane tab={<span>Ethereum</span>} key="1">
-                  <InchDex chain="eth" />
+                  <DEX chain="eth" />
                 </Tabs.TabPane>
                 <Tabs.TabPane tab={<span>Binance Smart Chain</span>} key="2">
-                  <InchDex chain="bsc" />
+                  <DEX chain="bsc" />
                 </Tabs.TabPane>
                 <Tabs.TabPane tab={<span>Polygon</span>} key="3">
-                  <InchDex chain="polygon" />
+                  <DEX chain="polygon" />
                 </Tabs.TabPane>
               </Tabs>
             </Route>

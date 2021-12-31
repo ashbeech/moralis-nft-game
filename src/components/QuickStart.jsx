@@ -37,9 +37,9 @@ export default function QuickStart({ isServerInfo }) {
   let contractAddress = "0x2bE349ffF31E9D1bb5CD2339376A7406655727bC";
 
   // move this to later after data from contract is retrieved.
-  let deathTime = new Date(
+  /*   let deathTime = new Date(
     (parseInt(data.lastMeal) + parseInt(data.endurance)) * 1000
-  );
+  ); */
   const options = {
     abi: contractAbi,
     contractAddress,
