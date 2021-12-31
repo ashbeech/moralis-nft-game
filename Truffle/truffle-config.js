@@ -1,5 +1,5 @@
 module.exports = {
-  contracts_directory: "./smart contracts/contracts",
+  contracts_directory: "./contracts",
 
   // Uncommenting the defaults below
   // provides for an easier quick-start with Ganache.

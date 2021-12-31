@@ -49,6 +49,8 @@ function Account() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isAuthModalVisible, setIsAuthModalVisible] = useState(false);
 
+  console.log("isAuthenticated?:", isAuthenticated);
+
   if (!isAuthenticated) {
     return (
       <>
@@ -71,7 +73,15 @@ function Account() {
           style={{ fontSize: "16px", fontWeight: "500" }}
           width="340px"
         >
-          <div style={{ padding: "10px", display: "flex", justifyContent: "center", fontWeight: "700", fontSize: "20px" }}>
+          <div
+            style={{
+              padding: "10px",
+              display: "flex",
+              justifyContent: "center",
+              fontWeight: "700",
+              fontSize: "20px",
+            }}
+          >
             Connect Wallet
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
@@ -102,7 +112,9 @@ function Account() {
   return (
     <>
       <div style={styles.account} onClick={() => setIsModalVisible(true)}>
-        <p style={{ marginRight: "5px", ...styles.text }}>{getEllipsisTxt(account, 6)}</p>
+        <p style={{ marginRight: "5px", ...styles.text }}>
+          {getEllipsisTxt(account, 6)}
+        </p>
         <Blockie currentWallet scale={3} />
       </div>
       <Modal
@@ -125,9 +137,18 @@ function Account() {
           }}
           bodyStyle={{ padding: "15px" }}
         >
-          <Address avatar="left" size={6} copyable style={{ fontSize: "20px" }} />
+          <Address
+            avatar="left"
+            size={6}
+            copyable
+            style={{ fontSize: "20px" }}
+          />
           <div style={{ marginTop: "10px", padding: "0 10px" }}>
-            <a href={`${getExplorer(chainId)}/address/${account}`} target="_blank" rel="noreferrer">
+            <a
+              href={`${getExplorer(chainId)}/address/${account}`}
+              target="_blank"
+              rel="noreferrer"
+            >
               <SelectOutlined style={{ marginRight: "5px" }} />
               View on Explorer
             </a>

@@ -1,9 +1,9 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 //import 1155 token contract from Openzeppelin
-import "../../node_modules/@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "../../node_modules/@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "../../node_modules/@openzeppelin/contracts/access/Ownable.sol";
+import "../node_modules/@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "../node_modules/@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 
 contract Token is ERC1155, Ownable {
     using SafeMath for uint256;
@@ -49,11 +49,11 @@ contract Token is ERC1155, Ownable {
         }
     }
 
-    /*     function feed(uint256 tokenID) public {
-        Pet storage pet = _tokenDetails[tokensInCirculation];
+    function feed(uint256 tokenId) public {
+        Pet storage pet = _tokenDetails[tokenId];
         require(pet.lastMeal + pet.endurance > block.timestamp); // must not have died of starvation; Pet is still alive
-        _tokenDetails[tokensInCirculation].lastMeal = block.timestamp;
-    } */
+        _tokenDetails[tokenId].lastMeal = block.timestamp;
+    }
 
     // _beforeTokenTransfer(operator, from, address(0), ids, amounts, "");
     /*     function _beforeTokenTransfer(
