@@ -8,17 +8,20 @@ import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 contract Token is ERC1155, Ownable {
     using SafeMath for uint256;
 
+    // Pet struct can be used within arrays and mappings
     struct Pet {
         uint8 damage;
         uint8 power;
         uint256 lastMeal;
         uint256 endurance; // 24 hours
     }
-    mapping(uint256 => Pet) private _tokenDetails; // 0 -> however many get created */
+    // mapping that reference each Pet by their token id
+    mapping(uint256 => Pet) private _tokenDetails; // 0 -> however many get created
 
     uint256 public tokensInCirculation;
 
     // https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0.json
+    // parent ERC1155 constructor requires this
     constructor()
         ERC1155("ipfs://INSERT_YOUR_CID_METAHASH/metadata/{id}.json")
     {
@@ -29,6 +32,7 @@ contract Token is ERC1155, Ownable {
         return _tokenDetails[tokenId];
     }
 
+    // mint is our publicly exposed func, _mint is parent contract's mint func
     function mint(
         uint256 amount,
         uint8 damage,
@@ -52,22 +56,21 @@ contract Token is ERC1155, Ownable {
     function feed(uint256 tokenId) public {
         Pet storage pet = _tokenDetails[tokenId];
         require(pet.lastMeal + pet.endurance > block.timestamp); // must not have died of starvation; Pet is still alive
-        _tokenDetails[tokenId].lastMeal = block.timestamp;
+        _tokenDetails[tokenId].lastMeal = block.timestamp; // update when pet was last fed according to block time
     }
 
-    // _beforeTokenTransfer(operator, from, address(0), ids, amounts, "");
-    /*     function _beforeTokenTransfer(
-        address operator,
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) internal override {
+    function _beforeTokenTransfer(
+        address,
+        address,
+        address,
+        uint256[] memory,
+        uint256[] memory,
+        bytes memory
+    ) internal view override {
         // cannot be transferred IF dead.
         Pet storage pet = _tokenDetails[tokensInCirculation];
         require(pet.lastMeal + pet.endurance > block.timestamp); // must not have died of starvation; Pet is still alive
-    } */
+    }
 }
 
 /* 
