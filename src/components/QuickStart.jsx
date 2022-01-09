@@ -30,7 +30,7 @@ export default function QuickStart({ isServerInfo }) {
 
     await fetch({
       params: options,
-      onSuccess: console.log("Pet fed"),
+      onSuccess: () => console.log("Pet fed"),
       onError: () => console.log(error),
     });
   }
@@ -48,7 +48,7 @@ export default function QuickStart({ isServerInfo }) {
 
       await contractProcessor.fetch({
         params: options,
-        onSuccess: console.log("Pet loaded"),
+        onSuccess: () => console.log("Pet loaded"),
         onError: (error) => console.log(error),
       });
     }
@@ -72,6 +72,22 @@ export default function QuickStart({ isServerInfo }) {
       return "0" + n;
     }
     return n;
+  }
+
+  function deathTimeRender(_deathTime) {
+    return (
+      addLeadingZeros(_deathTime.getDate()) +
+      "/" +
+      addLeadingZeros(_deathTime.getMonth() + 1) +
+      "/" +
+      _deathTime.getFullYear() +
+      " " +
+      addLeadingZeros(_deathTime.getHours()) +
+      ":" +
+      addLeadingZeros(_deathTime.getMinutes()) +
+      ":" +
+      addLeadingZeros(_deathTime.getSeconds())
+    );
   }
 
   function gameRendered(_data) {
@@ -104,20 +120,7 @@ export default function QuickStart({ isServerInfo }) {
             <Text>Status: {deathStatus}</Text>
           </Box>
           <Box>
-            <Text>
-              Deathtime:{" "}
-              {addLeadingZeros(deathTime.getDate()) +
-                "/" +
-                addLeadingZeros(deathTime.getMonth() + 1) +
-                "/" +
-                deathTime.getFullYear() +
-                " " +
-                addLeadingZeros(deathTime.getHours()) +
-                ":" +
-                addLeadingZeros(deathTime.getMinutes()) +
-                ":" +
-                addLeadingZeros(deathTime.getSeconds())}
-            </Text>
+            <Text>Deathtime: {deathTimeRender(deathTime)}</Text>
           </Box>
           <Box>
             <Text>Damage: {petData.damage}</Text>
