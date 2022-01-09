@@ -31,7 +31,8 @@ export default function QuickStart({ isServerInfo }) {
     await fetch({
       params: options,
       onSuccess: () => console.log("Pet fed"),
-      onError: () => console.log(error),
+      onComplete: () => console.log("Completed", data),
+      onError: () => console.log("Error", error),
     });
   }
 
@@ -49,7 +50,8 @@ export default function QuickStart({ isServerInfo }) {
       await contractProcessor.fetch({
         params: options,
         onSuccess: () => console.log("Pet loaded"),
-        onError: (error) => console.log(error),
+        onComplete: () => console.log("Completed", contractProcessor.data),
+        onError: (error) => console.log("Error", error),
       });
     }
   }
