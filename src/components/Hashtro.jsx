@@ -4,7 +4,7 @@ import { abi as contractAbi } from "../constants/abis/Token.json";
 import { Text, VStack, Button, Box } from "@chakra-ui/react";
 
 export default function QuickStart({ isServerInfo }) {
-  const contractAddress = "0x82d95A1Ccd9E06245E27fBf7e4678ea01CBA8311";
+  const contractAddress = "0x82d95A1Ccd9E06245E27fBf7e4678ea01CBA8311"; // <-- paste in contract address from truffle compile
 
   const { error, fetch, isFetching } = useWeb3ExecuteFunction();
 
@@ -12,6 +12,19 @@ export default function QuickStart({ isServerInfo }) {
   const [hashtroData, setHashtro] = useState(null);
   const [dataFetched, setDataFetched] = useState();
   const [interactionData, setInteractionData] = useState();
+
+  useEffect(() => {
+    // updates the display after feeding
+    if (hashtroId) {
+      fetchData(hashtroId);
+    }
+  }, [hashtroId, interactionData]); // <-- the above updates on these changing
+
+  useEffect(() => {
+    // updates the hashtro's state
+    console.log("Fetched", dataFetched);
+    setHashtro(dataFetched);
+  }, [dataFetched]); // <-- the above updates on this changing
 
   async function feedData(_id) {
     const options = {
@@ -50,19 +63,6 @@ export default function QuickStart({ isServerInfo }) {
       });
     }
   }
-
-  useEffect(() => {
-    // updates the display after feeding
-    if (hashtroId) {
-      fetchData(hashtroId);
-    }
-  }, [hashtroId, interactionData]); // <-- the above updates on these changing
-
-  useEffect(() => {
-    // updates the hashtro's state
-    console.log("Fetched", dataFetched);
-    setHashtro(dataFetched);
-  }, [dataFetched]); // <-- the above updates on this changing
 
   // date formatting
   function addLeadingZeros(n) {
