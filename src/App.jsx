@@ -18,7 +18,8 @@ import { Layout, Tabs } from "antd";
 import "antd/dist/antd.css";
 import NativeBalance from "components/NativeBalance";
 import "./style.css";
-import QuickStart from "components/QuickStart";
+import Hashtro from "components/Hashtro";
+//import QuickStart from "components/QuickStart";
 import Contract from "components/Contract/Contract";
 import Text from "antd/lib/typography/Text";
 import Ramper from "components/Ramper";
@@ -90,7 +91,7 @@ const App = ({ isServerInfo }) => {
           <div style={styles.content}>
             <Switch>
               <Route exact path="/quickstart">
-                <QuickStart isServerInfo={isServerInfo} />
+                <Hashtro isServerInfo={isServerInfo} />
               </Route>
               <Route path="/wallet">
                 <Wallet />

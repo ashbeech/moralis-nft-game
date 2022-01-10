@@ -10,6 +10,7 @@ contract Token is ERC1155, Ownable {
 
     // Hashtro struct can be used within arrays and mappings
     struct Hashtro {
+        uint256 id;
         uint8 damage;
         uint8 power;
         uint256 lastMeal;
@@ -23,8 +24,8 @@ contract Token is ERC1155, Ownable {
     string public symbol;
     uint256 public tokensInCirculation;
 
-    // https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0.json
     // parent ERC1155 constructor requires this
+    // https://game.example/api/item/0000000000000000000000000000000000000000000000000000000000000001.json
 
     constructor()
         ERC1155("ipfs://INSERT_YOUR_CID_METAHASH/metadata/{id}.json")
@@ -50,6 +51,7 @@ contract Token is ERC1155, Ownable {
 
     // mint is our publicly exposed func, _mint is parent contract's mint func
     function mint(
+        uint256 _id,
         uint256 _amount,
         uint8 _damage,
         uint8 _power,
@@ -58,6 +60,7 @@ contract Token is ERC1155, Ownable {
         for (uint256 i = 0; i < _amount; i++) {
             // only owner address can mint owner_address, token_id, bytecode
             _tokenDetails[tokensInCirculation] = Hashtro(
+                _id,
                 _damage,
                 _power,
                 block.timestamp,
