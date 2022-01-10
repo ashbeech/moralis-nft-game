@@ -14,10 +14,12 @@ export default function QuickStart({ isServerInfo }) {
   const [interactionData, setInteractionData] = useState();
 
   useEffect(() => {
-    // updates the display after feeding
+    // if we get the ID to load then fetch that IDs data from chain
+    // then dep `interactionData` means we update the display after feeding
     if (hashtroId) {
       fetchData(hashtroId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hashtroId, interactionData]); // <-- the above updates on these changing
 
   useEffect(() => {
