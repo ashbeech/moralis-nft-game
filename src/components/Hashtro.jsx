@@ -3,11 +3,12 @@ import { useWeb3ExecuteFunction } from "react-moralis";
 import { abi as contractAbi } from "../constants/abis/Token.json";
 import { Text, VStack, Button, Box } from "@chakra-ui/react";
 
-export default function QuickStart({ isServerInfo }) {
+export default function Hashtro({ isServerInfo }) {
+  // contract
   const contractAddress = "0x82d95A1Ccd9E06245E27fBf7e4678ea01CBA8311"; // <-- paste in contract address from truffle compile
-
+  // web3 functionality
   const { error, fetch, isFetching } = useWeb3ExecuteFunction();
-
+  // Hashtro data
   const [hashtroId, setHashtroId] = useState(null);
   const [hashtroData, setHashtro] = useState(null);
   const [dataFetched, setDataFetched] = useState();
@@ -28,6 +29,7 @@ export default function QuickStart({ isServerInfo }) {
     setHashtro(dataFetched);
   }, [dataFetched]); // <-- the above updates on this changing
 
+  // interact with Hastro token (NFT)
   async function feedData(_id) {
     const options = {
       abi: contractAbi,
@@ -46,6 +48,7 @@ export default function QuickStart({ isServerInfo }) {
     });
   }
 
+  // fetch Hastro token (NFT)
   async function fetchData(_id) {
     if (isServerInfo) {
       const options = {
@@ -74,6 +77,7 @@ export default function QuickStart({ isServerInfo }) {
     return n;
   }
 
+  // Render date data
   function deathTimeRender(_deathTime) {
     return (
       addLeadingZeros(_deathTime.getDate()) +
@@ -90,6 +94,7 @@ export default function QuickStart({ isServerInfo }) {
     );
   }
 
+  // Realtime UI
   function gameRenderer(_data) {
     if (!hashtroData) {
       return (
@@ -137,6 +142,7 @@ export default function QuickStart({ isServerInfo }) {
     }
   }
 
+  // UI interactions
   function onSubmit(e) {
     e.preventDefault();
     setHashtroId(e.target.attributes["data-hashtro-id"].value);
@@ -145,7 +151,7 @@ export default function QuickStart({ isServerInfo }) {
     e.preventDefault();
     feedData(e.target.attributes["data-hashtro-id"].value);
   }
-
+  // UI
   return (
     <Box style={{ display: "flex", gap: "10px" }}>
       <Box>
