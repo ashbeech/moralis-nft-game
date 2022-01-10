@@ -8,44 +8,60 @@ import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 contract Token is ERC1155, Ownable {
     using SafeMath for uint256;
 
-    // Pet struct can be used within arrays and mappings
-    struct Pet {
+    // Hashtro struct can be used within arrays and mappings
+    struct Hashtro {
         uint8 damage;
         uint8 power;
         uint256 lastMeal;
         uint256 endurance; // 24 hours
     }
-    // mapping that reference each Pet by their token id
-    mapping(uint256 => Pet) private _tokenDetails; // 0 -> however many get created
+    // mapping that reference each Hashtro by their token id
+    mapping(uint256 => Hashtro) private _tokenDetails; // 0 -> however many get created
+    mapping(uint256 => string) public tokenURI;
 
+    string public name;
+    string public symbol;
     uint256 public tokensInCirculation;
 
     // https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0.json
     // parent ERC1155 constructor requires this
+
     constructor()
         ERC1155("ipfs://INSERT_YOUR_CID_METAHASH/metadata/{id}.json")
     {
+        name = "Hashtros";
+        symbol = "HASHTROS";
         tokensInCirculation = 0;
     }
 
-    function getTokenDetails(uint256 tokenId) public view returns (Pet memory) {
+    function getTokenDetails(uint256 tokenId)
+        public
+        view
+        returns (Hashtro memory)
+    {
         return _tokenDetails[tokenId];
+    }
+
+    function feed(uint256 tokenId) public {
+        Hashtro storage hashtro = _tokenDetails[tokenId];
+        require(hashtro.lastMeal + hashtro.endurance > block.timestamp); // must not have died of starvation; Hashtro is still alive
+        _tokenDetails[tokenId].lastMeal = block.timestamp; // update when hashtro was last fed according to block time
     }
 
     // mint is our publicly exposed func, _mint is parent contract's mint func
     function mint(
-        uint256 amount,
-        uint8 damage,
-        uint8 power,
-        uint256 endurance
+        uint256 _amount,
+        uint8 _damage,
+        uint8 _power,
+        uint256 _endurance
     ) public onlyOwner {
-        for (uint256 i = 0; i < amount; i++) {
+        for (uint256 i = 0; i < _amount; i++) {
             // only owner address can mint owner_address, token_id, bytecode
-            _tokenDetails[tokensInCirculation] = Pet(
-                damage,
-                power,
+            _tokenDetails[tokensInCirculation] = Hashtro(
+                _damage,
+                _power,
                 block.timestamp,
-                endurance
+                _endurance
             );
             _mint(msg.sender, tokensInCirculation, 1, ""); // <- '1' in 1155 = NFT
             // iterate circulating tokens by minted amount above
@@ -53,10 +69,33 @@ contract Token is ERC1155, Ownable {
         }
     }
 
-    function feed(uint256 tokenId) public {
-        Pet storage pet = _tokenDetails[tokenId];
-        require(pet.lastMeal + pet.endurance > block.timestamp); // must not have died of starvation; Pet is still alive
-        _tokenDetails[tokenId].lastMeal = block.timestamp; // update when pet was last fed according to block time
+    function mintBatch(
+        address _to,
+        uint256[] memory _ids,
+        uint256[] memory _amounts
+    ) external onlyOwner {
+        _mintBatch(_to, _ids, _amounts, "");
+    }
+
+    function burn(uint256 _id, uint256 _amount) external {
+        _burn(msg.sender, _id, _amount);
+    }
+
+    function burnBatch(uint256[] memory _ids, uint256[] memory _amounts)
+        external
+    {
+        _burnBatch(msg.sender, _ids, _amounts);
+    }
+
+    function burnForMint(
+        address _from,
+        uint256[] memory _burnIds,
+        uint256[] memory _burnAmounts,
+        uint256[] memory _mintIds,
+        uint256[] memory _mintAmounts
+    ) external onlyOwner {
+        _burnBatch(_from, _burnIds, _burnAmounts);
+        _mintBatch(_from, _mintIds, _mintAmounts, "");
     }
 
     function _beforeTokenTransfer(
@@ -68,108 +107,16 @@ contract Token is ERC1155, Ownable {
         bytes memory
     ) internal view override {
         // cannot be transferred IF dead.
-        Pet storage pet = _tokenDetails[tokensInCirculation];
-        require(pet.lastMeal + pet.endurance > block.timestamp); // must not have died of starvation; Pet is still alive
+        Hashtro storage hashtro = _tokenDetails[tokensInCirculation];
+        require(hashtro.lastMeal + hashtro.endurance > block.timestamp); // must not have died of starvation; Hashtro is still alive
+    }
+
+    function setURI(uint256 _id, string memory _uri) external onlyOwner {
+        tokenURI[_id] = _uri;
+        emit URI(_uri, _id);
+    }
+
+    function uri(uint256 _id) public view override returns (string memory) {
+        return tokenURI[_id];
     }
 }
-
-/* 
-
-//import "../node_modules/@openzeppelin/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.sol";
-
-contract Tokens is ERC1155PresetMinterPauser {
-    uint256 public gameIDCounter;
-
-    mapping(string => uint256) public idmap;
-    mapping(uint256 => string) public lookupmap;
-
-    constructor() ERC1155PresetMinterPauser("https://img.youtube.com/vi/") {
-        // base URI
-    }
-
-    function addGameID(string memory gameID, uint256 initialSupply) external {
-        require(
-            hasRole(MINTER_ROLE, _msgSender()),
-            "Tokens: must have minter role to mint."
-        );
-        require(idmap[gameID] == 0, "Tokens: This game already exists.");
-
-        gameIDCounter = gameIDCounter + 1;
-        idmap[gameID] = gameIDCounter;
-        lookupmap[gameIDCounter] = gameID;
-
-        _mint(msg.sender, gameIDCounter, initialSupply, "");
-    }
-
-    function uri(uint256 id)
-        public
-        view
-        virtual
-        override
-        returns (string memory)
-    {
-        return
-            string(
-                abi.encodePacked(super.uri(id), lookupmap[id], "/hqdefault.jpg")
-            );
-    }
-
-    function getAllTokens(address account)
-        public
-        view
-        returns (uint256[] memory)
-    {
-        uint256 numTokens = 0;
-        for (uint256 i = 0; i <= gameIDCounter; i++) {
-            if (balanceOf(account, i) > 0) {
-                numTokens++;
-            }
-        }
-        uint256[] memory ret = new uint256[](numTokens);
-        uint256 counter = 0;
-        for (uint256 i = 0; i <= gameIDCounter; i++) {
-            if (balanceOf(account, i) > 0) {
-                ret[counter] = i;
-                counter++;
-            }
-        }
-        return ret;
-    }
-} */
-
-/* 
-contract Token is ERC1155, Ownable {
-
-    uint256 public constant ASTEROID = 0;
-
-    struct Pet {
-        uint8 damage;
-        uint8 power;
-        uint256 lastMeal;
-        uint256 endurance; // 24 hours
-    }
-
-    mapping(uint256 => Pet) private _tokenDetails; // 0 -> however many get created */
-
-/*     constructor(string memory name, string memory symbol)
-        ERC1155(name, symbol)
-        _mint(msg.sender, ASTEROID, 10**18, "");
-    {} */
-/*
-function addAsteroidID(string memory asteroidID, uint256 initialSupply) external {
-        require(
-            hasRole(MINTER_ROLE, _msgSender()),
-            "Tokens: must have minter role to mint."
-        );
-        require(idmap[gameID] == 0, "Tokens: This game already exists.");
-
-        gameIDCounter = gameIDCounter + 1;
-        idmap[gameID] = gameIDCounter;
-        lookupmap[gameIDCounter] = gameID;
-
-        _mint(msg.sender, gameIDCounter, initialSupply, "");
-    }
-
-
-}
- */

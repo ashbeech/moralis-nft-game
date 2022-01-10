@@ -4,14 +4,14 @@ import { abi as contractAbi } from "../constants/abis/Token.json";
 import { Text, VStack, Button, Box } from "@chakra-ui/react";
 
 export default function QuickStart({ isServerInfo }) {
-  const contractAddress = "0x072991514eB62CF5bB7202bfcA9AE87a5c6A2794";
+  const contractAddress = "0x18b053c8CBBC1AaA584ad9c5e12E507C1a42F16a";
 
   const contractProcessor = useWeb3ExecuteFunction();
   const { data, error, fetch, isFetching } = useWeb3ExecuteFunction();
 
-  let [petId, setPetId] = useState(null);
-  let [petData, setPet] = useState(null);
   let [mounted, setMount] = useState(false);
+  let [hashtroId, setHashtroId] = useState(null);
+  let [hashtroData, setHashtro] = useState(null);
 
   //will run on componentDidMount
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function QuickStart({ isServerInfo }) {
 
     await fetch({
       params: options,
-      onSuccess: () => console.log("Pet fed"),
+      onSuccess: () => console.log("Hashtro fed"),
       onComplete: () => console.log("Completed", data),
       onError: () => console.log("Error", error),
     });
@@ -49,7 +49,7 @@ export default function QuickStart({ isServerInfo }) {
 
       await contractProcessor.fetch({
         params: options,
-        onSuccess: () => console.log("Pet loaded"),
+        onSuccess: () => console.log("Hashtro loaded"),
         onComplete: () => console.log("Completed", contractProcessor.data),
         onError: (error) => console.log("Error", error),
       });
@@ -58,14 +58,14 @@ export default function QuickStart({ isServerInfo }) {
 
   useEffect(() => {
     // updates the display after feeding
-    if (petId) {
-      fetchData(petId);
+    if (hashtroId) {
+      fetchData(hashtroId);
     }
-  }, [petId, data]); // <-- the above updates on these changing
+  }, [hashtroId, data]); // <-- the above updates on these changing
 
   useEffect(() => {
-    // updates the pet's state
-    setPet(contractProcessor.data);
+    // updates the hashtro's state
+    setHashtro(contractProcessor.data);
   }, [contractProcessor.data]); // <-- the above updates on this changing
 
   // date formatting
@@ -92,11 +92,8 @@ export default function QuickStart({ isServerInfo }) {
     );
   }
 
-  function gameRendered(_data) {
-    // Debug
-    //console.log("RENDER DISPLAY");
-
-    if (!petData) {
+  function gameRenderer(_data) {
+    if (!hashtroData) {
       return (
         <VStack>
           <Text>Nothing Loaded</Text>
@@ -107,9 +104,10 @@ export default function QuickStart({ isServerInfo }) {
       let deathStatus = "ALIVE";
 
       let deathTime = null;
-      if (petData != null) {
+      if (hashtroData != null) {
         deathTime = new Date(
-          (parseInt(petData.lastMeal) + parseInt(petData.endurance)) * 1000
+          (parseInt(hashtroData.lastMeal) + parseInt(hashtroData.endurance)) *
+            1000
         );
       }
       if (now > deathTime) {
@@ -125,13 +123,13 @@ export default function QuickStart({ isServerInfo }) {
             <Text>Deathtime: {deathTimeRender(deathTime)}</Text>
           </Box>
           <Box>
-            <Text>Damage: {petData.damage}</Text>
+            <Text>Damage: {hashtroData.damage}</Text>
           </Box>
           <Box>
-            <Text>Power: {petData.power}</Text>
+            <Text>Power: {hashtroData.power}</Text>
           </Box>
           <Box>
-            <Text>Endurance: {petData.endurance}</Text>
+            <Text>Endurance: {hashtroData.endurance}</Text>
           </Box>
         </VStack>
       );
@@ -140,11 +138,11 @@ export default function QuickStart({ isServerInfo }) {
 
   function onSubmit(e) {
     e.preventDefault();
-    setPetId(e.target.attributes["data-pet-id"].value);
+    setHashtroId(e.target.attributes["data-hashtro-id"].value);
   }
   function onFeed(e) {
     e.preventDefault();
-    feedData(e.target.attributes["data-pet-id"].value);
+    feedData(e.target.attributes["data-hashtro-id"].value);
   }
 
   return (
@@ -155,14 +153,14 @@ export default function QuickStart({ isServerInfo }) {
             name="fetch"
             onClick={onSubmit}
             disabled={
-              petData === null && contractProcessor.isFetching === false
+              hashtroData === null && contractProcessor.isFetching === false
                 ? false
                 : true
             }
             colorScheme="green"
             size="lg"
             variant="solid"
-            data-pet-id={0}
+            data-hashtro-id={0}
             leftIcon={"👨‍🚀"}
           >
             {"Fetch"}
@@ -170,17 +168,17 @@ export default function QuickStart({ isServerInfo }) {
           <Button
             name="feed"
             onClick={onFeed}
-            disabled={petData !== null || isFetching ? false : true}
+            disabled={hashtroData !== null || isFetching ? false : true}
             colorScheme="purple"
             size="lg"
             variant="solid"
             leftIcon={"🌮"}
-            data-pet-id={0}
+            data-hashtro-id={0}
           >
             {"Feed"}
           </Button>
         </VStack>
-        <>{gameRendered(petData)}</>
+        <>{gameRenderer(hashtroData)}</>
       </Box>
     </Box>
   );
