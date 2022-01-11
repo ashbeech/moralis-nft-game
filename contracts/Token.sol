@@ -28,7 +28,9 @@ contract Token is ERC1155, Ownable {
     // https://game.example/api/item/0000000000000000000000000000000000000000000000000000000000000001.json
 
     constructor()
-        ERC1155("ipfs://INSERT_YOUR_CID_METAHASH/metadata/{id}.json")
+        ERC1155(
+            "ipfs://QmYERyUXYxk6tRV3HecQmAzhmcxKbFr4TMFAVEK5yWCYBN/metadata/{id}.json"
+        )
     {
         name = "Hashtros";
         symbol = "HASHTROS";

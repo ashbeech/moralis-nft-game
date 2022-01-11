@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useWeb3ExecuteFunction } from "react-moralis";
 import { abi as contractAbi } from "../constants/abis/Token.json";
-import { Text, VStack, Button, Box } from "@chakra-ui/react";
+import { Text, VStack, Button, Box, Image } from "@chakra-ui/react";
 
 export default function Hashtro({ isServerInfo }) {
   // contract
@@ -120,6 +120,10 @@ export default function Hashtro({ isServerInfo }) {
       return (
         <VStack>
           <Box>
+            {/* <-- TEMPORARY: static link and will be loaded from id of NFT's metadata --> */}
+            <Image src="https://gateway.pinata.cloud/ipfs/QmYERyUXYxk6tRV3HecQmAzhmcxKbFr4TMFAVEK5yWCYBN?preview=1" />
+          </Box>
+          <Box>
             <Text>Status: {deathStatus}</Text>
           </Box>
           <Box>
@@ -149,7 +153,10 @@ export default function Hashtro({ isServerInfo }) {
   }
   function onFeed(e) {
     e.preventDefault();
-    feedData(e.target.attributes["data-hashtro-id"].value);
+    //console.log(e.target.attributes["data-hashtro-id"].value);
+    if (hashtroId) {
+      feedData(hashtroId);
+    }
   }
   // UI
   return (
