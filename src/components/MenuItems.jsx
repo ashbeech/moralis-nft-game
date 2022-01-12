@@ -14,13 +14,17 @@ function MenuItems() {
         fontSize: "17px",
         fontWeight: "500",
         width: "100%",
-        justifyContent: "center",
+        justifyContent: "left",
       }}
       defaultSelectedKeys={[pathname]}
     >
       <Menu.Item key="/quickstart">
-        <NavLink to="/quickstart">🚀 Quick Start</NavLink>
+        <NavLink to="/quickstart">🚀 Play</NavLink>
       </Menu.Item>
+      <Menu.Item key="/uploader">
+        <NavLink to="/uploader">⬆️ Uploader</NavLink>
+      </Menu.Item>
+      {/*
       <Menu.Item key="/wallet">
         <NavLink to="/wallet">👛 Wallet</NavLink>
       </Menu.Item>
@@ -42,6 +46,7 @@ function MenuItems() {
       <Menu.Item key="/contract">
         <NavLink to="/contract">📄 Contract</NavLink>
       </Menu.Item>
+      */}
     </Menu>
   );
 }

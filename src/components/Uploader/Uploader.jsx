@@ -1,7 +1,21 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { Box, Button, InputGroup, Input } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  CloseButton,
+  Box,
+  Button,
+  InputGroup,
+  Input,
+  VStack,
+  Link,
+} from "@chakra-ui/react";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { Moralis } from "moralis";
+//import { useMoralis } from "react-moralis";
 
 //import { axios } from "axios";
 const { default: axios } = require("axios");
@@ -25,9 +39,9 @@ const API_URL = "https://deep-index.moralis.io/api/v2/ipfs/uploadFolder"; //proc
 const API_KEY =
   "ZxAdOjknRMLOLF32VVigHMfeIe4VROiJUZeryjUnILgYyhGjEdbJCdjHLrQd0lSX"; //process.env.API_KEY;
 
-const ipfsArray = []; // holds all IPFS data
-const metadataList = []; // holds metadata for all NFTs (could be a session store of data)
-const promiseArray = []; // array of promises so that only if finished, will next promise be initiated
+let ipfsArray = []; // holds all IPFS data
+let metadataList = []; // holds metadata for all NFTs (could be a session store of data)
+let promiseArray = []; // array of promises so that only if finished, will next promise be initiated
 
 const baseStyle = {
   display: "flex",
@@ -55,12 +69,95 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-export default function Uploader() {
+export default function Uploader(_isAuthenticated) {
   const [files, setFiles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [showMessage, setMessage] = useState(false);
+  const [showErrorMessage, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [IPFSLinkImage, setIPFSLinkImage] = useState("");
+  let IPFSLinks = {
+    image: "",
+    metadata: "",
+  };
   const maxSize = 1048576;
   let totalFiles = 0;
 
-  // upload to database
+  // clean up file preview
+  useEffect(
+    () => () => {
+      files.forEach((file) => URL.revokeObjectURL(file.preview));
+    },
+    [files]
+  );
+
+  // authetication check; we don't want uploads if not logged-in
+  useEffect(() => {
+    if (!_isAuthenticated.isAuthenticated) resetAll(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [_isAuthenticated]);
+
+  const messageMarkup = (
+    <Box>
+      <Alert status="success">
+        <AlertIcon />
+        <Box flex="1">
+          <AlertTitle>Success</AlertTitle>
+          <AlertDescription display="block">
+            Media and metadata uploaded to IPFS.
+            <VStack>
+              <Link href={IPFSLinkImage} isExternal>
+                See image here <ExternalLinkIcon mx="2px" />
+              </Link>
+              <Link href={IPFSLinks.metadata} isExternal>
+                See metadata here <ExternalLinkIcon mx="2px" />
+              </Link>
+            </VStack>
+          </AlertDescription>
+        </Box>
+        <CloseButton
+          position="absolute"
+          right="8px"
+          top="8px"
+          onClick={() => setMessage(false)}
+        />
+      </Alert>
+    </Box>
+  );
+  const errorMarkup = (_error) => {
+    return (
+      <Box>
+        <Alert status="error">
+          <AlertIcon />
+          <Box flex="1">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription display="block">{_error}.</AlertDescription>
+          </Box>
+          <CloseButton
+            position="absolute"
+            right="8px"
+            top="8px"
+            onClick={() => setError(false)}
+          />
+        </Alert>
+      </Box>
+    );
+  };
+
+  // reset all
+  // _status = should show message on reset?
+  const resetAll = (_status) => {
+    setFiles([]);
+    setLoading(false);
+    if (_status) {
+      setMessage(true);
+    }
+    ipfsArray = []; // holds all IPFS data
+    metadataList = []; // holds metadata for all NFTs (could be a session store of data)
+    promiseArray = []; // array of promises so that only if finished, will next promise be initiated
+  };
+
+  // upload ref to database
   const saveToDb = async (metaHash, imageHash, _editionSize) => {
     for (let i = 1; i < _editionSize + 1; i++) {
       let id = i.toString();
@@ -70,13 +167,20 @@ export default function Uploader() {
       let url = `https://ipfs.moralis.io:2053/ipfs/${metaHash}/metadata/${paddedHex}.json`;
       let options = { json: true };
 
+      setIPFSLinkImage(url);
+      IPFSLinks.image = `https://ipfs.moralis.io:2053/ipfs/${imageHash}/metadata/${paddedHex}.png`;
+      IPFSLinks.metadata = url;
+
       request(url, options, (error, res, body) => {
         if (error) {
+          setLoading(false);
+          setError(true);
+          setErrorMessage(error);
           return console.log(error);
         }
 
-        if (!error && res.statusCode == 200) {
-          // Save file reference to Moralis
+        if (!error && res.statusCode === 200) {
+          // save file reference to Moralis
           const FileDatabase = new Moralis.Object("Metadata");
           FileDatabase.set("edition", body.edition);
           //FileDatabase.set("name", body.name);
@@ -86,14 +190,19 @@ export default function Uploader() {
           FileDatabase.set("meta_hash", metaHash);
           FileDatabase.set("image_hash", imageHash);
           FileDatabase.save();
+
+          console.log(IPFSLinks.image);
+          console.log(IPFSLinks.metadata);
+          console.log("ALL DONE");
+          resetAll(true);
         }
       });
     }
   };
 
   const onDrop = useCallback((acceptedFiles) => {
-    console.log(acceptedFiles);
-    console.log(getInputProps);
+    //console.log(acceptedFiles);
+    //console.log(getInputProps);
 
     setFiles(
       acceptedFiles.map((file) =>
@@ -114,6 +223,12 @@ export default function Uploader() {
     fileRejections,
   } = useDropzone({
     onDrop,
+    disabled:
+      _isAuthenticated.isAuthenticated && loading
+        ? true
+        : _isAuthenticated.isAuthenticated
+        ? false
+        : true,
     accept: "image/jpeg, image/png",
     minSize: 0,
     maxSize,
@@ -138,16 +253,7 @@ export default function Uploader() {
     </div>
   ));
 
-  // clean up
-  useEffect(
-    () => () => {
-      files.forEach((file) => URL.revokeObjectURL(file.preview));
-    },
-    [files]
-  );
-
   // once file is uploaded to IPFS we can use the CID to reference in the metadata
-
   const generateMetadata = (edition, path) => {
     let dateTime = Date.now();
     let tempMetadata = {
@@ -170,34 +276,27 @@ export default function Uploader() {
     _totalFiles
     //_fileDataArray
   ) => {
-    const ipfsArray = []; // holds all IPFS data
-    const fileDataArray = [];
-    const metadataList = []; // holds metadata for all NFTs (could be a session store of data)
-    const promiseArray = []; // array of promises so that only if finished, will next promise be initiated
+    let fileDataArray = [];
+    ipfsArray = []; // holds all IPFS data
+    metadataList = []; // holds metadata for all NFTs (could be a session store of data)
+    promiseArray = []; // array of promises so that only if finished, will next promise be initiated
 
     console.log(_totalFiles);
 
+    // iterate through total number of files uploaded
     for (let i = 1; i < _totalFiles + 1; i++) {
       let id = i.toString();
       let paddedHex = (
         "0000000000000000000000000000000000000000000000000000000000000000" + id
       ).slice(-64);
 
-      //fileDataArray[i].push;
+      // create filepath to reference image uploaded
       fileDataArray[i] = {
         filePath: `https://ipfs.moralis.io:2053/ipfs/${imageCID}/images/${paddedHex}.png`,
       };
       console.log(fileDataArray[i].filePath);
       // do something else here after firstFunction completes
-      let nftMetadata = generateMetadata(
-        /*
-        fileDataArray[i].newDna,
-        fileDataArray[i].editionCount,
-        fileDataArray[i].attributesList,
-        */
-        id,
-        fileDataArray[i].filePath
-      );
+      let nftMetadata = generateMetadata(id, fileDataArray[i].filePath);
       metadataList.push(nftMetadata);
 
       let base64String = Buffer.from(JSON.stringify(metadataList)).toString(
@@ -225,26 +324,25 @@ export default function Uploader() {
                 },
               })
               .then((res) => {
+                // successfully uploaded metadata to IPFS
                 let metaCID = res.data[0].path.split("/")[4];
                 console.log("META FILE PATHS:", res.data);
+                // save ref to IPFS
                 saveToDb(metaCID, imageCID, _totalFiles);
-                //writeMetaData(base64String);
               })
               .catch((err) => {
+                setLoading(false);
+                setError(true);
+                setErrorMessage(err);
                 console.log(err);
               });
           });
         })
       );
-
-      console.log("COMPLETED");
     }
   };
 
   function uploadIPFS(_files) {
-    //ipfsArray = [];
-    //promiseArray = [];
-
     totalFiles = _files.length;
 
     for (let i = 1; i < totalFiles + 1; i++) {
@@ -278,6 +376,7 @@ export default function Uploader() {
                   },
                 })
                 .then((res) => {
+                  // successfully uploaded file to IPFS
                   console.log("IMAGE FILE PATHS:", res.data);
                   let imageCID = res.data[0].path.split("/")[4];
                   console.log("IMAGE CID:", imageCID);
@@ -291,26 +390,37 @@ export default function Uploader() {
                   );
                 })
                 .catch((err) => {
+                  setLoading(false);
+                  setError(true);
+                  setErrorMessage(err);
                   console.log(err);
                 });
             });
           })
         );
-        //let fileName = _files.name
-        //handlePictureDropUpload(base64String, "TEST IMAGE");
       };
       reader.readAsDataURL(_files[0]);
     }
   }
 
   const handleSubmit = async (e) => {
-    // take files passed to upload button, but could just useState version
-    //uploadIPFS(e.target.attributes["data-file"].value);
+    // stop interactions with buttons
+    setLoading(true);
+    // trigger upload from files via useState
     uploadIPFS(files);
   };
 
+  /*   _isAuthenticated.isAuthenticated && loading
+  ? true
+  : _isAuthenticated.isAuthenticated
+  ? false
+  : true */
+
   return (
     <Box className="container text-center mt-5">
+      {/*JSON.stringify(files)*/}
+      {showMessage && !files[0] ? messageMarkup : ""}
+      {showErrorMessage ? errorMarkup(errorMessage) : ""}
       <Box {...getRootProps({ style })}>
         <InputGroup size="md">
           <Input {...getInputProps()} />
@@ -328,8 +438,7 @@ export default function Uploader() {
         colorScheme="teal"
         isFullWidth={true}
         onClick={handleSubmit}
-        //isLoading={loading}
-        //spinner={<MoonLoader />}
+        isLoading={loading}
         isDisabled={files[0] ? false : true}
         data-file={files}
         type="submit"
@@ -339,11 +448,4 @@ export default function Uploader() {
       </Button>
     </Box>
   );
-
-  // UI
-  /*   return (
-    <Box style={{ display: "flex", gap: "10px" }}>
-      <Dropzone />
-    </Box>
-  ); */
 }

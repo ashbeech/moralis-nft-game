@@ -8,22 +8,22 @@ import {
 } from "react-router-dom";
 import Account from "components/Account/Account";
 import Chains from "components/Chains";
-import TokenPrice from "components/TokenPrice";
-import ERC20Balance from "components/ERC20Balance";
-import ERC20Transfers from "components/ERC20Transfers";
-import DEX from "components/DEX";
-import NFTBalance from "components/NFTBalance";
+//import TokenPrice from "components/TokenPrice";
+//import ERC20Balance from "components/ERC20Balance";
+//import ERC20Transfers from "components/ERC20Transfers";
+//import DEX from "components/DEX";
+//import NFTBalance from "components/NFTBalance";
 import Wallet from "components/Wallet";
-import { Layout, Tabs } from "antd";
+import { Layout /*Tabs*/ } from "antd";
 import "antd/dist/antd.css";
-import NativeBalance from "components/NativeBalance";
+//import NativeBalance from "components/NativeBalance";
 import "./style.css";
 import Hashtro from "components/Hashtro";
-//import Uploader from "components/Uploader/Uploader"; <-- 👀 Currently working on building an IPFS uploader to assist in uploading game assets (incl. image + metadata)
+import Uploader from "components/Uploader/Uploader"; // <-- 👀 Currently working on building an IPFS uploader to assist in uploading game assets (incl. image + metadata)
 //import QuickStart from "components/QuickStart";
-import Contract from "components/Contract/Contract";
-import Text from "antd/lib/typography/Text";
-import Ramper from "components/Ramper";
+//import Contract from "components/Contract/Contract";
+//import Text from "antd/lib/typography/Text";
+//import Ramper from "components/Ramper";
 import MenuItems from "./components/MenuItems";
 import { ChakraProvider } from "@chakra-ui/react";
 const { Header, Footer } = Layout;
@@ -78,6 +78,7 @@ const App = ({ isServerInfo }) => {
             <MenuItems />
             <div style={styles.headerRight}>
               <Chains />
+              {/*
               <TokenPrice
                 address="0x1f9840a85d5af5bf1d1762f925bdaddc4201f984"
                 chain="eth"
@@ -85,6 +86,7 @@ const App = ({ isServerInfo }) => {
                 size="40px"
               />
               <NativeBalance />
+              */}
               <Account />
             </div>
           </Header>
@@ -92,12 +94,15 @@ const App = ({ isServerInfo }) => {
           <div style={styles.content}>
             <Switch>
               <Route exact path="/quickstart">
-                {/*<Uploader />*/}
                 <Hashtro isServerInfo={isServerInfo} />
+              </Route>
+              <Route path="/uploader">
+                <Uploader isAuthenticated={isAuthenticated} />
               </Route>
               <Route path="/wallet">
                 <Wallet />
               </Route>
+              {/*
               <Route path="/1inch">
                 <Tabs defaultActiveKey="1" style={{ alignItems: "center" }}>
                   <Tabs.TabPane tab={<span>Ethereum</span>} key="1">
@@ -126,6 +131,7 @@ const App = ({ isServerInfo }) => {
               <Route path="/contract">
                 <Contract />
               </Route>
+              */}
               <Route path="/">
                 <Redirect to="/quickstart" />
               </Route>
@@ -139,6 +145,7 @@ const App = ({ isServerInfo }) => {
           </div>
         </Router>
         <Footer style={{ textAlign: "center" }}>
+          {/*
           <Text style={{ display: "block" }}>
             ⭐️ Please star this{" "}
             <a
@@ -172,6 +179,7 @@ const App = ({ isServerInfo }) => {
               Moralis
             </a>
           </Text>
+          */}
         </Footer>
       </Layout>
     </ChakraProvider>
