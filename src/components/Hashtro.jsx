@@ -1,18 +1,43 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useWeb3ExecuteFunction } from "react-moralis";
-import { abi as contractAbi } from "../constants/abis/Token.json";
-import { Text, VStack, Button, Box, Image } from "@chakra-ui/react";
+//import { abi as contractAbi } from "../constants/abis/Token.json";
+import { abi as charContractAbi } from "../constants/abis/Character.json";
+import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  CloseButton,
+  Box,
+  Text,
+  VStack,
+  Button,
+  Image,
+  Input,
+  Heading,
+  FormControl,
+  FormErrorMessage,
+} from "@chakra-ui/react";
+import { Formik, Field, Form } from "formik";
+const { default: axios } = require("axios");
+
+const CHAR_CONTRACT = process.env.REACT_APP_CHAR_CONTRACT;
 
 export default function Hashtro({ isServerInfo }) {
-  // contract
-  const contractAddress = "0x82d95A1Ccd9E06245E27fBf7e4678ea01CBA8311"; // <-- paste in contract address from truffle compile
   // web3 functionality
-  const { error, fetch, isFetching } = useWeb3ExecuteFunction();
+  const { fetch, isFetching } = useWeb3ExecuteFunction();
   // Hashtro data
   const [hashtroId, setHashtroId] = useState(null);
   const [hashtroData, setHashtro] = useState(null);
   const [dataFetched, setDataFetched] = useState();
   const [interactionData, setInteractionData] = useState();
+  const [showErrorMessage, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [initialFormValues, setInitialFormValues] = useState({
+    id: null,
+  });
+
+  const form = useRef();
 
   useEffect(() => {
     // if we get the ID to load then fetch that IDs data from chain
@@ -25,15 +50,14 @@ export default function Hashtro({ isServerInfo }) {
 
   useEffect(() => {
     // updates the hashtro's state
-    console.log("Fetched", dataFetched);
     setHashtro(dataFetched);
   }, [dataFetched]); // <-- the above updates on this changing
-
+  /*
   // interact with Hastro token (NFT)
   async function feedData(_id) {
     const options = {
       abi: contractAbi,
-      contractAddress,
+      contractAddress: CHAR_CONTRACT,
       functionName: "feed",
       params: {
         tokenId: _id,
@@ -47,13 +71,14 @@ export default function Hashtro({ isServerInfo }) {
       onError: () => console.log("Error", error),
     });
   }
-
+  */
+  /* 
   // fetch Hastro token (NFT)
   async function fetchData(_id) {
     if (isServerInfo) {
       const options = {
         abi: contractAbi,
-        contractAddress,
+        contractAddress: CHAR_CONTRACT,
         functionName: "getTokenDetails",
         params: {
           tokenId: _id,
@@ -67,6 +92,145 @@ export default function Hashtro({ isServerInfo }) {
         onError: (error) => console.log("Error", error),
       });
     }
+  }
+  */
+
+  const errorMarkup = (_error) => {
+    return (
+      <Box>
+        <Alert status="error">
+          <AlertIcon />
+          <Box flex="1">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription display="block">{_error}.</AlertDescription>
+          </Box>
+          <CloseButton
+            position="absolute"
+            right="8px"
+            top="8px"
+            onClick={() => setError(false)}
+          />
+        </Alert>
+      </Box>
+    );
+  };
+
+  // Realtime UI
+  function gameRenderer(_data) {
+    if (!hashtroData) {
+      return (
+        <VStack>
+          <Text>Nothing Loaded</Text>
+        </VStack>
+      );
+    } else {
+      //console.log(hashtroData);
+      let now = new Date();
+      let deathStatus = "ALIVE";
+
+      let deathTime = null;
+      let lastMeal = null;
+
+      if (hashtroData != null) {
+        deathTime = new Date(
+          (parseInt(hashtroData.attributes.lastMeal) +
+            parseInt(hashtroData.attributes.endurance)) *
+            1000
+        );
+        lastMeal = new Date(parseInt(hashtroData.attributes.lastMeal) * 1000);
+      }
+      if (now > deathTime) {
+        deathStatus = "DEAD";
+      }
+
+      return (
+        <VStack>
+          <Box mt={4} mb={4}>
+            <Heading as="h4" size="md">
+              {hashtroData.name}
+            </Heading>
+          </Box>
+          <Box>
+            {/* <-- TEMPORARY: static link and will be loaded from id of NFT's metadata --> */}
+            <Image src={hashtroData.image} />
+          </Box>
+          <Box>
+            <Text>Status: {deathStatus}</Text>
+          </Box>
+          <Box>
+            <Text>Deathtime: {deathTimeRender(deathTime)}</Text>
+          </Box>
+          <Box>
+            <Text>Last Meal: {lastMeal.toDateString()}</Text>
+          </Box>
+          <Box>
+            <Text>ID: {hashtroData.id}</Text>
+          </Box>
+          <Box>
+            <Text>Damage: {hashtroData.attributes.damage}</Text>
+          </Box>
+          <Box>
+            <Text>Power: {hashtroData.attributes.power}</Text>
+          </Box>
+          <Box>
+            <Text>Endurance: {hashtroData.attributes.endurance}</Text>
+          </Box>
+        </VStack>
+      );
+    }
+  }
+
+  async function readMetadata(_response) {
+    axios
+      .get(_response.tokenURI)
+      .then((res) => {
+        let dataMapping = {};
+        dataMapping = res.data[0];
+        dataMapping.attributes.lastMeal = _response.lastMeal;
+        setDataFetched(dataMapping);
+        gameRenderer(null);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  // interact with Hastro token (NFT)
+  async function feedData(_id) {
+    const options = {
+      abi: charContractAbi,
+      contractAddress: CHAR_CONTRACT,
+      functionName: "feed",
+      params: {
+        _id: _id,
+      },
+    };
+
+    await fetch({
+      params: options,
+      onSuccess: (response) => setInteractionData(response),
+      onComplete: () => console.log("Character Fed"),
+      onError: (error) => console.log("Error", error),
+    });
+  }
+
+  // fetch Hastro token (NFT)
+  async function fetchData(_id) {
+    const options = {
+      abi: charContractAbi,
+      contractAddress: CHAR_CONTRACT,
+      functionName: "getTokenDetails",
+      params: {
+        _id: _id,
+      },
+    };
+
+    await fetch({
+      params: options,
+      onSuccess: (response) => readMetadata(response),
+      onComplete: () => console.log("Character Fetched"),
+      onError: (error) => console.log("Error", error),
+    });
   }
 
   // date formatting
@@ -94,66 +258,15 @@ export default function Hashtro({ isServerInfo }) {
     );
   }
 
-  // Realtime UI
-  function gameRenderer(_data) {
-    if (!hashtroData) {
-      return (
-        <VStack>
-          <Text>Nothing Loaded</Text>
-        </VStack>
-      );
-    } else {
-      let now = new Date();
-      let deathStatus = "ALIVE";
-
-      let deathTime = null;
-      if (hashtroData != null) {
-        deathTime = new Date(
-          (parseInt(hashtroData.lastMeal) + parseInt(hashtroData.endurance)) *
-            1000
-        );
-      }
-      if (now > deathTime) {
-        deathStatus = "DEAD";
-      }
-
-      return (
-        <VStack>
-          <Box>
-            {/* <-- TEMPORARY: static link and will be loaded from id of NFT's metadata --> */}
-            <Image src="https://gateway.pinata.cloud/ipfs/QmYERyUXYxk6tRV3HecQmAzhmcxKbFr4TMFAVEK5yWCYBN?preview=1" />
-          </Box>
-          <Box>
-            <Text>Status: {deathStatus}</Text>
-          </Box>
-          <Box>
-            <Text>Deathtime: {deathTimeRender(deathTime)}</Text>
-          </Box>
-          <Box>
-            <Text>ID: {hashtroData.id}</Text>
-          </Box>
-          <Box>
-            <Text>Damage: {hashtroData.damage}</Text>
-          </Box>
-          <Box>
-            <Text>Power: {hashtroData.power}</Text>
-          </Box>
-          <Box>
-            <Text>Endurance: {hashtroData.endurance}</Text>
-          </Box>
-        </VStack>
-      );
-    }
-  }
-
   // UI interactions
-  function onSubmit(e) {
-    e.preventDefault();
-    setHashtroId(e.target.attributes["data-hashtro-id"].value);
-  }
+  const handleSubmit = async (e) => {
+    console.log("FORM INPUT:", e);
+
+    //e.preventDefault();
+    setHashtroId(e.id);
+  };
   function onFeed(e) {
     e.preventDefault();
-    //console.log(e.target.attributes["data-hashtro-id"].value);
     if (hashtroId) {
       feedData(hashtroId);
     }
@@ -163,30 +276,69 @@ export default function Hashtro({ isServerInfo }) {
     <Box style={{ display: "flex", gap: "10px" }}>
       <Box>
         <VStack>
-          <Button
-            name="fetch"
-            onClick={onSubmit}
-            disabled={dataFetched || isFetching ? true : false}
-            colorScheme="green"
-            size="lg"
-            variant="solid"
-            data-hashtro-id={0}
-            leftIcon={"👨‍🚀"}
+          <Heading className="h1" mb={2}>
+            Test NFT Character
+          </Heading>
+          <Formik
+            initialValues={initialFormValues}
+            validateOnMount={true}
+            enableReinitialize={true}
+            onSubmit={async (values, { resetForm }) => {
+              handleSubmit(values, { resetForm });
+            }}
           >
-            Fetch
-          </Button>
-          <Button
-            name="feed"
-            onClick={onFeed}
-            disabled={!dataFetched || isFetching ? true : false}
-            colorScheme="purple"
-            size="lg"
-            variant="solid"
-            leftIcon={"🌮"}
-            data-hashtro-id={0}
-          >
-            Feed
-          </Button>
+            {(props) => (
+              <Form ref={form}>
+                <Box mb={2}>
+                  {showErrorMessage ? errorMarkup(errorMessage) : ""}
+                </Box>
+                <Field name="id">
+                  {({ field, form }) => (
+                    <FormControl>
+                      <Input
+                        {...field}
+                        autoComplete="off"
+                        id="id"
+                        className="first"
+                        placeholder="Character ID"
+                        mb={2}
+                        borderRadius={1}
+                        variant="outline"
+                        borderColor="teal"
+                        borderStyle="solid"
+                        lineHeight={0.2}
+                        value={field.value ? field.value : ""}
+                      />
+                      <FormErrorMessage>{form.errors.id}</FormErrorMessage>
+                    </FormControl>
+                  )}
+                </Field>
+                <Button
+                  name="fetch"
+                  //onClick={onSubmit}
+                  disabled={dataFetched || isFetching ? true : false}
+                  colorScheme="green"
+                  size="lg"
+                  variant="solid"
+                  leftIcon={"👨‍🚀"}
+                  type="submit"
+                >
+                  Fetch
+                </Button>
+                <Button
+                  name="feed"
+                  onClick={onFeed}
+                  disabled={!dataFetched || isFetching ? true : false}
+                  colorScheme="purple"
+                  size="lg"
+                  variant="solid"
+                  leftIcon={"🌮"}
+                >
+                  Feed
+                </Button>
+              </Form>
+            )}
+          </Formik>
         </VStack>
         <>{gameRenderer(hashtroData)}</>
       </Box>

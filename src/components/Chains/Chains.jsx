@@ -88,7 +88,7 @@ function Chains() {
   const { isAuthenticated } = useMoralis();
   const [selected, setSelected] = useState({});
 
-  console.log("chain", chain);
+  //console.log("chain", chain);
 
   useEffect(() => {
     if (!chainId) return null;
@@ -117,7 +117,11 @@ function Chains() {
   return (
     <div>
       <Dropdown overlay={menu} trigger={["click"]}>
-        <Button key={selected?.key} icon={selected?.icon} style={{ ...styles.button, ...styles.item }}>
+        <Button
+          key={selected?.key}
+          icon={selected?.icon}
+          style={{ ...styles.button, ...styles.item }}
+        >
           <span style={{ marginLeft: "5px" }}>{selected?.value}</span>
           <DownOutlined />
         </Button>

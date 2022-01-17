@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.7.0 <0.9.0;
 
 //import 1155 token contract from Openzeppelin
@@ -26,23 +27,20 @@ contract Token is ERC1155, Ownable {
 
     // parent ERC1155 constructor requires this
     // https://game.example/api/item/0000000000000000000000000000000000000000000000000000000000000001.json
+    // "ipfs://QmdRfxFBzKPdjYy94hu3KvmWkNbRvL4QLkDSSyKZZcASb4/metadata/{id}"
 
-    constructor()
-        ERC1155(
-            "ipfs://QmYERyUXYxk6tRV3HecQmAzhmcxKbFr4TMFAVEK5yWCYBN/metadata/{id}.json"
-        )
-    {
+    constructor() ERC1155("ipfs://f0{id}") {
         name = "Hashtros";
         symbol = "HASHTROS";
         tokensInCirculation = 0;
     }
 
-    function getTokenDetails(uint256 tokenId)
-        public
-        view
-        returns (Hashtro memory)
-    {
-        return _tokenDetails[tokenId];
+    function getTokenDetails(uint256 _id) public view returns (Hashtro memory) {
+        return _tokenDetails[_id];
+    }
+
+    function getTokenCirculations() public view returns (uint256) {
+        return tokensInCirculation;
     }
 
     function feed(uint256 tokenId) public {
@@ -50,6 +48,19 @@ contract Token is ERC1155, Ownable {
         require(hashtro.lastMeal + hashtro.endurance > block.timestamp); // must not have died of starvation; Hashtro is still alive
         _tokenDetails[tokenId].lastMeal = block.timestamp; // update when hashtro was last fed according to block time
     }
+
+    /*
+    function mint(
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+        
+    )   public virtual  {
+
+        _mint(msg.sender, id, amount, data);
+    }   
+    */
 
     // mint is our publicly exposed func, _mint is parent contract's mint func
     function mint(
@@ -121,7 +132,28 @@ contract Token is ERC1155, Ownable {
         emit URI(_uri, _id);
     }
 
-    function uri(uint256 _id) public view override returns (string memory) {
-        return tokenURI[_id];
+    /*
+    function uri(uint256 _tokenID)
+        public
+        pure
+        override
+        returns (string memory)
+    {
+        string memory hexstringtokenID;
+        hexstringtokenID = uint2hexstr(_tokenID);
+
+        return string(abi.encodePacked("ipfs://f0", hexstringtokenID));
     }
+    */
+
+    /*     function uri(uint256 _tokenID)
+        public
+        view
+        override
+        returns (string memory)
+    {
+        //return tokenURI[_tokenID];
+        return _uri;
+    }
+    */
 }
