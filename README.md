@@ -2,15 +2,18 @@
 
 > React components and hooks for fast testing game logic with [Moralis](https://moralis.io?utm_source=ashbeech&utm_medium=readme&utm_campaign=ethereum-boilerplate).
 
+<br/>
+
 ## About
 
 Aim: Save time and resources for game developers by e.g. facilitating the generation of in-game assets as NFTs via intuative UI.
 
 These tutorial videos are a great introduction.
-Part 1: [Link to Moralis YouTube Video](https://youtu.be/2nM1dTm2zww)
+Part 1: [Link to Moralis YouTube Video](https://youtu.be/2nM1dTm2zww)<br/>
 Part 2: [Link to Moralis YouTube Video](https://youtu.be/a3zIFrJl7UU)
 
 Built on [react-moralis](https://github.com/MoralisWeb3/react-moralis) and [Moralis](https://moralis.io?utm_source=ashbeech&utm_medium=readme&utm_campaign=ethereum-boilerplate).
+<br/>
 
 ## Quick Launch 🚀
 
@@ -37,6 +40,8 @@ Run your app:
 ```sh
 npm start
 ```
+
+<br/>
 
 ## Functionality 🛠
 
@@ -76,6 +81,8 @@ Promise.all(promiseArray).then(() => {
     });
 });
 ```
+
+<br/>
 
 ### `useWeb3ExecuteFunction()`
 
@@ -117,6 +124,8 @@ const mintCharacter = async (_metaCID, _id, _formValues) => {
 };
 ```
 
+<br/>
+
 ### Minting Game Assets ⛓
 
 Deploy Solidity contracts e.g. `Character.sol` to EVM blockchain via [Truffle (local)](https://trufflesuite.com/docs/ganache/overview.html) or [⚙️ Remix IDE](https://remix.ethereum.org/) for test or mainnet deployment.
@@ -154,19 +163,22 @@ Metadata uploaded to IPFS (`_tokenURI`) is mapped to a token's ID via the inheri
     }
 ```
 
+<br/>
+
 ## Dependencies 🏗
 
 ### Backend
 
-`moralis`: [ℹ️ Docs](https://www.npmjs.com/package/moralis)
-`react-moralis`: [ℹ️ Docs](https://www.npmjs.com/package/react-moralis)
-`axios`: [ℹ️ Docs](https://www.npmjs.com/package/axios)
+`moralis`: [ℹ️ Docs](https://www.npmjs.com/package/moralis)<br/>
+`react-moralis`: [ℹ️ Docs](https://www.npmjs.com/package/react-moralis)<br/>
+`axios`: [ℹ️ Docs](https://www.npmjs.com/package/axios)<br/>
 `openzeppelin`: [ℹ️ Docs](https://www.npmjs.com/package/@openzeppelin/contracts)
 
 ### Frontend
 
-`chakra-ui`: [ℹ️ Docs](https://www.npmjs.com/package/chakra-ui)
+`chakra-ui`: [ℹ️ Docs](https://www.npmjs.com/package/chakra-ui)<br/>
 `react-dropzone`: [ℹ️ Docs](https://www.npmjs.com/package/react-dropzone)
+<br/>
 
 ### Much more to come [WIP]
 
