@@ -10,7 +10,7 @@ contract Character is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     using SafeMath for uint256;
 
-    Counters.Counter private _tokenIds;
+    Counters.Counter private _tokenIDS;
 
     bool public paused = false;
     bool public revealed = false;
@@ -48,7 +48,7 @@ contract Character is ERC721URIStorage, Ownable {
     }
 
     function getTokenCirculations() public view returns (uint256) {
-        return _tokenIds.current();
+        return _tokenIDS.current();
     }
 
     modifier mintCompliance(uint256 _mintAmount) {
@@ -65,7 +65,7 @@ contract Character is ERC721URIStorage, Ownable {
 
         // condition: total minted + this potential tx is under maxsupply
         require(
-            _tokenIds.current() + _mintAmount <= maxSupply,
+            _tokenIDS.current() + _mintAmount <= maxSupply,
             "Max supply exceeded!"
         );
 
@@ -85,11 +85,11 @@ contract Character is ERC721URIStorage, Ownable {
         uint256 _endurance,
         string memory _tokenURI
     ) public payable onlyOwner mintCompliance(_mintAmount) returns (uint256) {
-        _tokenIds.increment();
+        _tokenIDS.increment();
 
-        uint256 newItemId = _tokenIds.current();
-        _tokenDetails[newItemId] = CharData(
-            newItemId,
+        uint256 newCharID = _tokenIDS.current();
+        _tokenDetails[newCharID] = CharData(
+            newCharID,
             _damage,
             _power,
             block.timestamp,
@@ -101,9 +101,9 @@ contract Character is ERC721URIStorage, Ownable {
             addressMintedBalance[msg.sender]++;
         }
 
-        _safeMint(msg.sender, newItemId);
-        _setTokenURI(newItemId, _tokenURI);
+        _safeMint(msg.sender, newCharID);
+        _setTokenURI(newCharID, _tokenURI);
 
-        return newItemId;
+        return newCharID;
     }
 }

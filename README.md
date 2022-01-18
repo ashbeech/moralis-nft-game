@@ -81,9 +81,78 @@ Promise.all(promiseArray).then(() => {
 
 You can use the [`useWeb3ExecuteFunction()`](https://www.npmjs.com/package/react-moralis#useWeb3ExecuteFunction) hook to execute on-chain functions. You need to provide the correct abi of the contract, the corresponding contractAddress, the functionName that you would like to execute, and any parameters (params) thet you need to send with the function.
 
+```jsx
+const mintCharacter = async (_metaCID, _id, _formValues) => {
+  // could be _mintAmount instead(?) i.e. 1 is just temp hardcoded
+  let _url = "";
+  let paddedHex = (
+    "0000000000000000000000000000000000000000000000000000000000000000" + _id
+  ).slice(-64);
+  _url = `https://ipfs.moralis.io:2053/ipfs/${_metaCID}/metadata/${paddedHex}.json`;
+
+  // set link for verifibility at end of upload -> mint process
+  setIPFSLinkImage(_url);
+
+  const options = {
+    abi: charContractAbi,
+    contractAddress: CHAR_CONTRACT,
+    functionName: "mintToken",
+    params: {
+      _mintAmount: 1,
+      _damage: _formValues.damage,
+      _power: _formValues.power,
+      _endurance: _formValues.endurance,
+      _tokenURI: _url,
+    },
+  };
+
+  console.log("META DATA URL:", _url);
+
+  await fetch({
+    params: options,
+    onSuccess: (response) => setInteractionData(response),
+    onComplete: () => console.log("MINT COMPLETE"),
+    onError: (error) => console.log("ERROR", error),
+  });
+};
+```
+
 ### Minting Game Assets ⛓
 
 Deploy Solidity contracts e.g. `Character.sol` to EVM blockchain via [Truffle (local)](https://trufflesuite.com/docs/ganache/overview.html) or [⚙️ Remix IDE](https://remix.ethereum.org/) for test or mainnet deployment.
+
+Metadata uploaded to IPFS (`_tokenURI`) is mapped to a token's ID via the inherited `_setTokenURI` function from [openzeppelin](https://www.npmjs.com/package/@openzeppelin/contracts):
+
+```solidity
+    function mintToken(
+        uint256 _mintAmount,
+        uint8 _damage,
+        uint8 _power,
+        uint256 _endurance,
+        string memory _tokenURI
+    ) public payable onlyOwner mintCompliance(_mintAmount) returns (uint256) {
+        _tokenIDS.increment();
+
+        uint256 newCharID = _tokenIDS.current();
+        _tokenDetails[newCharID] = CharData(
+            newCharID,
+            _damage,
+            _power,
+            block.timestamp,
+            _endurance,
+            _tokenURI
+        );
+
+        for (uint256 i = 1; i <= _mintAmount; i++) {
+            addressMintedBalance[msg.sender]++;
+        }
+
+        _safeMint(msg.sender, newCharID);
+        _setTokenURI(newCharID, _tokenURI);
+
+        return newCharID;
+    }
+```
 
 ## Dependencies 🏗
 
@@ -92,6 +161,7 @@ Deploy Solidity contracts e.g. `Character.sol` to EVM blockchain via [Truffle (l
 `moralis`: [ℹ️ Docs](https://www.npmjs.com/package/moralis)
 `react-moralis`: [ℹ️ Docs](https://www.npmjs.com/package/react-moralis)
 `axios`: [ℹ️ Docs](https://www.npmjs.com/package/axios)
+`openzeppelin`: [ℹ️ Docs](https://www.npmjs.com/package/@openzeppelin/contracts)
 
 ### Frontend
 
