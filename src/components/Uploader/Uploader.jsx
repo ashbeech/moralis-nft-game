@@ -30,7 +30,6 @@ import { useWeb3ExecuteFunction } from "react-moralis";
 //import { abi as objContractAbi } from "../../constants/abis/Token.json";
 import { abi as charContractAbi } from "../../constants/abis/Character.json";
 //import { useMoralis } from "react-moralis";
-//import { axios } from "axios";
 const { default: axios } = require("axios");
 //const request = require("request");
 
@@ -515,7 +514,6 @@ export default function Uploader(_isAuthenticated) {
           new Promise((res, rej) => {
             ipfsArray.push({
               path: `images/${paddedHex}.png`,
-              //content: base64String,
               content: base64String.toString("base64"),
             });
             console.log("IPFS ARRAY:", ipfsArray);
@@ -534,7 +532,7 @@ export default function Uploader(_isAuthenticated) {
                   console.log("MEDIA FILE PATHS:", res.data);
                   let imageCID = res.data[0].path.split("/")[4];
                   console.log("MEDIA CID:", imageCID);
-                  // pass folder CID to meta data
+                  // pass IPFS folder CID to compile metadata
                   uploadMetadata(
                     API_URL,
                     API_KEY,
