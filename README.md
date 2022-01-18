@@ -2,8 +2,6 @@
 
 > React components and hooks for fast testing game logic with [Moralis](https://moralis.io?utm_source=ashbeech&utm_medium=readme&utm_campaign=ethereum-boilerplate).
 
-<br/>
-
 ## About
 
 Aim: Save time and resources for game developers by e.g. facilitating the generation of in-game assets as NFTs via intuative UI.
@@ -13,6 +11,7 @@ Part 1: [Link to Moralis YouTube Video](https://youtu.be/2nM1dTm2zww)<br/>
 Part 2: [Link to Moralis YouTube Video](https://youtu.be/a3zIFrJl7UU)
 
 Built on [react-moralis](https://github.com/MoralisWeb3/react-moralis) and [Moralis](https://moralis.io?utm_source=ashbeech&utm_medium=readme&utm_campaign=ethereum-boilerplate).
+<br/>
 <br/>
 
 ## Quick Launch 🚀
