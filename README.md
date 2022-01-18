@@ -6,7 +6,7 @@
 
 Aim: Save time and resources for game developers by e.g. facilitating the generation of in-game assets as NFTs via intuative UI.
 
-These tutorial videos are a great introduction.
+These tutorial videos are a great introduction.<br/>
 Part 1: [Link to Moralis YouTube Video](https://youtu.be/2nM1dTm2zww)<br/>
 Part 2: [Link to Moralis YouTube Video](https://youtu.be/a3zIFrJl7UU)
 
@@ -164,6 +164,12 @@ Metadata uploaded to IPFS (`_tokenURI`) is mapped to a token's ID via the inheri
 
 <br/>
 
+### Much more to come [WIP]
+
+…
+
+<br/>
+
 ## Dependencies 🏗
 
 ### Backend
@@ -178,10 +184,6 @@ Metadata uploaded to IPFS (`_tokenURI`) is mapped to a token's ID via the inheri
 `chakra-ui`: [ℹ️ Docs](https://www.npmjs.com/package/chakra-ui)<br/>
 `react-dropzone`: [ℹ️ Docs](https://www.npmjs.com/package/react-dropzone)
 <br/>
-
-### Much more to come [WIP]
-
-…
 
 ---
 
