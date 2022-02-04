@@ -18,6 +18,7 @@ import {
   InputGroup,
   Input,
   Heading,
+  Text,
   Link,
   FormControl,
   FormErrorMessage,
@@ -80,7 +81,7 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-export default function Uploader(_isAuthenticated) {
+export default function Batcher(_isAuthenticated) {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showMessage, setMessage] = useState(false);
@@ -142,6 +143,7 @@ export default function Uploader(_isAuthenticated) {
     });
   };
 
+  /* 
   // fetch Hastro token (NFT)
   async function fetchData(_id) {
     const options = {
@@ -160,25 +162,7 @@ export default function Uploader(_isAuthenticated) {
       onError: (error) => console.log("Error", error),
     });
   }
-
-  // fetch Hastro token (NFT)
-  async function levelUp(_id) {
-    const options = {
-      abi: charContractAbi,
-      contractAddress: CHAR_CONTRACT,
-      functionName: "levelUp",
-      params: {
-        _charId: _id,
-      },
-    };
-
-    await fetch({
-      params: options,
-      onSuccess: (response) => console.log("TOKEN DATA:", response),
-      onComplete: () => console.log("Fetched"),
-      onError: (error) => console.log("Error", error),
-    });
-  }
+  */
 
   /*
   const getURI = async (_id) => {
@@ -249,21 +233,8 @@ export default function Uploader(_isAuthenticated) {
     await tokensAvailable();
     // trigger upload from files via useState
     console.log("TOKENS IN CIRCULATION:", _tokensAvailable);
-
-    await fetchData(5);
-
-    await levelUp(5);
-
-    await fetchData(5);
-
-    // level up
-
-    /*     uploadIPFS(files, {
-      name: e.name,
-      damage: parseInt(e.damage),
-      power: parseInt(e.power),
-      endurance: parseInt(e.endurance),
-    }); */
+    //console.log("FILES:", files);
+    uploadIPFS(files);
   };
 
   const messageMarkup = (
@@ -396,8 +367,10 @@ export default function Uploader(_isAuthenticated) {
         : _isAuthenticated.isAuthenticated
         ? false
         : true,
-    accept: "image/jpeg, image/png",
-    multiple: false,
+    accept: "application/json",
+    webkitdirectory: true,
+    hiddenFileInput: { webkitdirectory: true },
+    multiple: true,
     minSize: 0,
     maxSize,
   });
@@ -406,10 +379,8 @@ export default function Uploader(_isAuthenticated) {
     () => ({
       ...baseStyle,
       ...(isDragActive ? activeStyle : {}),
-      ...(isDragAccept ? acceptStyle : {}),
-      ...(isDragReject ? rejectStyle : {}),
     }),
-    [isDragActive, isDragReject, isDragAccept]
+    [isDragActive]
   );
 
   const isFileTooLarge =
@@ -419,6 +390,20 @@ export default function Uploader(_isAuthenticated) {
     <div key={file.name}>
       <img src={file.preview} alt={file.name} />
     </div>
+  ));
+
+  const folder_files = acceptedFiles.map((file) => (
+    <li key={file.path}>
+      {file.path} - {file.size} bytes
+    </li>
+  ));
+  const rejected_files = fileRejections.map(({ file, errors }) => (
+    <li key={file.path}>
+      {file.path} - {file.size} bytes
+      {errors.map((e) => (
+        <p key={e.code}>{e.message}</p>
+      ))}
+    </li>
   ));
 
   // once file is uploaded to IPFS we can use the CID to reference in the metadata
@@ -454,7 +439,8 @@ export default function Uploader(_isAuthenticated) {
 
     // iterate through total number of files uploaded
     for (let i = 1; i < _totalFiles + 1; i++) {
-      let id = parseInt(_tokensAvailable + 1).toString(); //i.toString(); <-- TEMP
+      //let id = parseInt(_tokensAvailable + 1).toString(); //i.toString(); <-- TEMP
+      let id = parseInt(i).toString(); //i.toString(); <-- TEMP
       let paddedHex = (
         "0000000000000000000000000000000000000000000000000000000000000000" + id
       ).slice(-64);
@@ -520,12 +506,13 @@ export default function Uploader(_isAuthenticated) {
     }
   };
 
-  function uploadIPFS(_files, _formValues) {
+  function uploadIPFS(_files) {
     totalFiles = _files.length;
 
     // currently only single file upload
     for (let i = 1; i < totalFiles + 1; i++) {
-      let id = parseInt(_tokensAvailable + 1).toString(); //i.toString(); <-- TEMP
+      //let id = parseInt(_tokensAvailable + 1).toString(); //i.toString(); <-- TEMP
+      let id = parseInt(i).toString(); //i.toString(); <-- TEMP
       let paddedHex = (
         "0000000000000000000000000000000000000000000000000000000000000000" + id
       ).slice(-64);
@@ -539,7 +526,7 @@ export default function Uploader(_isAuthenticated) {
         promiseArray.push(
           new Promise((res, rej) => {
             ipfsArray.push({
-              path: `images/${paddedHex}.png`,
+              path: `metadata/${paddedHex}.json`,
               content: base64String.toString("base64"),
             });
             console.log("IPFS ARRAY:", ipfsArray);
@@ -555,10 +542,11 @@ export default function Uploader(_isAuthenticated) {
                 })
                 .then((res) => {
                   // successfully uploaded file to IPFS
-                  console.log("MEDIA FILE PATHS:", res.data);
+                  console.log("METADATA FILE PATHS:", res.data);
                   let imageCID = res.data[0].path.split("/")[4];
-                  console.log("MEDIA CID:", imageCID);
+                  console.log("METADATA CID:", imageCID);
                   // pass IPFS folder CID to compile metadata
+                  /* 
                   uploadMetadata(
                     API_URL,
                     API_KEY,
@@ -566,6 +554,7 @@ export default function Uploader(_isAuthenticated) {
                     totalFiles,
                     _formValues
                   );
+                   */
                 })
                 .catch((err) => {
                   setLoading(false);
@@ -577,14 +566,14 @@ export default function Uploader(_isAuthenticated) {
           })
         );
       };
-      reader.readAsDataURL(_files[0]);
+      reader.readAsDataURL(_files[i]);
     }
   }
 
   return (
     <Box className="container text-center mt-5">
       <Heading className="h1" mb={2}>
-        NFT Character Generator
+        Batch Asset Generator
       </Heading>
       <Formik
         initialValues={initialFormValues}
@@ -596,125 +585,45 @@ export default function Uploader(_isAuthenticated) {
       >
         {(props) => (
           <Form ref={form}>
-            <Box mb={2}>
-              {showMessage && !files[0] ? messageMarkup : ""}
-              {showErrorMessage ? errorMarkup(errorMessage) : ""}
-            </Box>
-            <Field name="name">
-              {({ field, form }) => (
-                <FormControl>
-                  <Input
-                    {...field}
-                    autoComplete="off"
-                    id="name"
-                    className="first"
-                    placeholder="Character Name"
-                    mb={2}
-                    borderRadius={1}
-                    variant="outline"
-                    borderColor="teal"
-                    borderStyle="solid"
-                    lineHeight={0.2}
-                    isDisabled={files[0] ? false : true}
-                    isRequired
-                  />
-                  <FormErrorMessage>{form.errors.name}</FormErrorMessage>
-                </FormControl>
-              )}
-            </Field>
-            <Field name="power">
-              {({ field, form }) => (
-                <FormControl>
-                  <Input
-                    {...field}
-                    autoComplete="off"
-                    type="number"
-                    id="power"
-                    placeholder="Power Level"
-                    mb={2}
-                    borderRadius={1}
-                    variant="outline"
-                    borderColor="teal"
-                    borderStyle="solid"
-                    lineHeight={0.2}
-                    isDisabled={files[0] ? false : true}
-                    isRequired
-                  />
-                  <FormErrorMessage>{form.errors.power}</FormErrorMessage>
-                </FormControl>
-              )}
-            </Field>
-            <Field name="damage">
-              {({ field, form }) => (
-                <FormControl>
-                  <Input
-                    {...field}
-                    autoComplete="off"
-                    type="number"
-                    id="damage"
-                    placeholder="Damage Level"
-                    mb={2}
-                    borderRadius={1}
-                    variant="outline"
-                    borderColor="teal"
-                    borderStyle="solid"
-                    lineHeight={0.2}
-                    isDisabled={files[0] ? false : true}
-                    isRequired
-                  />
-                  <FormErrorMessage>{form.errors.damage}</FormErrorMessage>
-                </FormControl>
-              )}
-            </Field>
-            <Field name="endurance">
-              {({ field, form }) => (
-                <FormControl>
-                  <Input
-                    {...field}
-                    autoComplete="off"
-                    type="number"
-                    id="endurance"
-                    placeholder="Endurance Level"
-                    mb={2}
-                    borderRadius={1}
-                    variant="outline"
-                    borderColor="teal"
-                    borderStyle="solid"
-                    lineHeight={0.2}
-                    isDisabled={files[0] ? false : true}
-                    isRequired
-                  />
-                  <FormErrorMessage>{form.errors.endurance}</FormErrorMessage>
-                </FormControl>
-              )}
-            </Field>
             <Box {...getRootProps({ style })} mb={2}>
               <InputGroup size="md">
-                <FormLabel htmlFor="name">Character Image</FormLabel>
+                <FormLabel htmlFor="name">Metadata</FormLabel>
                 <Input {...getInputProps()} />
               </InputGroup>
-              {!isDragActive && "Click here or drop a file to upload!"}
-              {isDragActive && !isDragReject && "Drop it like it's hot!"}
-              {isDragReject && "File type not accepted, sorry!"}
+              {!isDragActive && "Select files or drag stuff here"}
+              {isDragActive && "Drop it like it's hot."}
               {isFileTooLarge && (
-                <Box className="text-danger mt-2">File is too large.</Box>
+                <Box className="text-danger mt-2">File too large.</Box>
               )}
             </Box>
-            <Center mb={2}>
-              <aside>{thumbs}</aside>
-            </Center>
-            <Button
-              id="files"
-              colorScheme="teal"
-              isFullWidth={true}
-              isLoading={loading}
-              isDisabled={files[0] ? false : true}
-              data-file={files}
-              type="submit"
-              textAlign="center"
-            >
-              Upload
-            </Button>
+            {files[0] && (
+              <Box mb={2}>
+                <Box mb={2} className="accepted">
+                  <ul>{folder_files}</ul>
+                </Box>
+                <Button
+                  id="files"
+                  colorScheme="teal"
+                  isFullWidth={true}
+                  isLoading={loading}
+                  isDisabled={files[0] ? false : true}
+                  data-file={files}
+                  type="submit"
+                  textAlign="center"
+                  mb={2}
+                >
+                  Upload
+                </Button>
+              </Box>
+            )}
+            {files[0] && rejected_files.length !== 0 && (
+              <Box mb={2} className="rejected">
+                <Heading mb={2} as="h4" size="md">
+                  Rejected Files
+                </Heading>
+                <ul>{rejected_files}</ul>
+              </Box>
+            )}
           </Form>
         )}
       </Formik>

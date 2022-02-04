@@ -18,3 +18,11 @@
   overflow: auto;
   border-radius: 1rem;
 }
+
+.rejected {
+  opacity: 0.25;
+}
+
+ul {
+  margin-left: 25px !important;
+}
