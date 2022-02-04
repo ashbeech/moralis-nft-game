@@ -25,6 +25,7 @@ contract Character is ERC721URIStorage, Ownable {
         "ipfs://INSERT_YOUR_CID/character-hidden.json";
     bool public paused = false;
     bool public revealed = true;
+    address public contractOwner;
 
     // id, dna, level, rarity, evac, tokenURI
     struct Char {
@@ -40,7 +41,9 @@ contract Character is ERC721URIStorage, Ownable {
     event NewChar(address indexed owner, uint256 id, uint256 dna);
     mapping(address => uint256) public addressMintedBalance;
 
-    constructor() ERC721("Character", "CHAR") {}
+    constructor() ERC721("Character", "CHAR") {
+        contractOwner = msg.sender;
+    }
 
     // helpers
     function _createRandomNum(uint256 _mod) internal view returns (uint256) {
@@ -147,7 +150,7 @@ contract Character is ERC721URIStorage, Ownable {
      */
     function updateMetadata(uint256 _id, string memory _tokenURI) public {
         require(_exists(_id), "ERC721URIStorage: URI set of nonexistent token");
-        require(ownerOf(_id) == msg.sender);
+        require(ownerOf(_id) == msg.sender || contractOwner == msg.sender);
         _tokenDetails[_id].tokenURI = _tokenURI;
         _setTokenURI(_id, _tokenURI);
     }
