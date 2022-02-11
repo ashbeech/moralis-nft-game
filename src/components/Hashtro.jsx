@@ -135,7 +135,7 @@ export default function Hashtro({ isServerInfo }) {
         deathTime = new Date(
           (parseInt(hashtroData.attributes.lastMeal) +
             parseInt(hashtroData.attributes.endurance)) *
-            1000
+            1000,
         );
         lastMeal = new Date(parseInt(hashtroData.attributes.lastMeal) * 1000);
       }
@@ -181,7 +181,22 @@ export default function Hashtro({ isServerInfo }) {
   }
 
   async function readMetadata(_response) {
-    axios
+    console.log(_response);
+    // fetch data on NFT from JSON metadata
+    let dataMapping = {
+      id: _response.id,
+      attributes: {
+        tokenURI: _response.tokenURI,
+        dna: _response.dna,
+        level: _response.level,
+        rarity: _response.rarity,
+      },
+    };
+    setHashtro(dataMapping);
+    console.log(dataMapping);
+
+    // alternatiely fetch data on NFT from JSON metadata
+    /*     axios
       .get(_response.tokenURI)
       .then((res) => {
         let dataMapping = {};
@@ -192,7 +207,7 @@ export default function Hashtro({ isServerInfo }) {
       })
       .catch((err) => {
         console.log(err);
-      });
+      }); */
   }
 
   // interact with Hastro token (NFT)
@@ -200,7 +215,7 @@ export default function Hashtro({ isServerInfo }) {
     const options = {
       abi: charContractAbi,
       contractAddress: CHAR_CONTRACT,
-      functionName: "feed",
+      functionName: "levelUp",
       params: {
         _id: _id,
       },
@@ -209,7 +224,7 @@ export default function Hashtro({ isServerInfo }) {
     await fetch({
       params: options,
       onSuccess: (response) => setInteractionData(response),
-      onComplete: () => console.log("Character Fed"),
+      onComplete: () => console.log("Character Levelled-up"),
       onError: (error) => console.log("Error", error),
     });
   }
@@ -332,9 +347,9 @@ export default function Hashtro({ isServerInfo }) {
                   colorScheme="purple"
                   size="lg"
                   variant="solid"
-                  leftIcon={"🌮"}
+                  leftIcon={"⇧"}
                 >
-                  Feed
+                  Level Up
                 </Button>
               </Form>
             )}

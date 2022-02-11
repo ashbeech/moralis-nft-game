@@ -27,7 +27,7 @@ export default function QuickStart({ isServerInfo }) {
 
   const isInchDex = useMemo(
     () => (Moralis.Plugins?.oneInch ? true : false),
-    [Moralis.Plugins?.oneInch]
+    [Moralis.Plugins?.oneInch],
   );
 
   return (

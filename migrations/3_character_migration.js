@@ -13,8 +13,8 @@ module.exports = async function (deployer) {
 
   await charInstance.mintToken(
     1,
-    "ipfs://QmctH9PvqE2nApQppW25BWm4GZcYL5dEmWQHt1zsoFBhQu/0000000000000000000000000000000000000000000000000000000000000001.json"
+    "ipfs://QmctH9PvqE2nApQppW25BWm4GZcYL5dEmWQHt1zsoFBhQu/0000000000000000000000000000000000000000000000000000000000000001.json",
   ); // Token id 1
-  let character = await charInstance.getTokenDetails(0);
+  let character = await charInstance.getTokenDetails(1);
   console.log(character);
 };

@@ -16,6 +16,7 @@
     "axios": "^0.24.0",
     "formik": "^2.2.9",
     "framer-motion": "^4.1.17",
+    "magic-sdk": "7.0.0",
     "moralis": "^0.0.183",
     "react": "^17.0.2",
     "react-blockies": "^1.4.1",
@@ -39,7 +40,13 @@
     "watch:events": "moralis-admin-cli add-contract",
     "deploy": "node Truffle/scripts/deployContract.js",
     "deploypage": "gh-pages -d build",
-    "clean": "npx gh-pages-clean"
+    "clean": "npx gh-pages-clean",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint --fix",
+    "prettier:check": "prettier --check .",
+    "prettier:fix": "prettier --write \"**/*.{js,jsx,ts,tsx,css,md,json,html}\" .prettierrc --config ./.prettierrc",
+    "format": "npm run lint:fix && npm run prettier:fix",
+    "prepare": "husky install"
   },
   "eslintConfig": {
     "extends": [
@@ -60,6 +67,13 @@
     ]
   },
   "devDependencies": {
-    "gh-pages": "^3.2.3"
+    "eslint": "^7.11.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react": "^7.28.0",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "gh-pages": "^3.2.3",
+    "husky": "^7.0.0",
+    "prettier": "^2.5.1"
   }
 }
