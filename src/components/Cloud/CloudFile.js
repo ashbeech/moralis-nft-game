@@ -10,7 +10,7 @@ const coordinatorKey = "";
 const nft_market_place_abi = [];
 const marketPlace = new web3.eth.Contract(
   nft_market_place_abi,
-  nft_market_place_address
+  nft_market_place_address,
 );
 
 Moralis.Cloud.define("placeOffering", async (request) => {
@@ -40,14 +40,14 @@ Moralis.Cloud.define("placeOffering", async (request) => {
   const tokenId = request.params.tokenId;
   const price = request.params.price;
   const nonceOperator = web3.eth.getTransactionCount(
-    "0x77Ef4472cAc1AAca6B4bB82EA2bc41A6cf876EAf"
+    "0x77Ef4472cAc1AAca6B4bB82EA2bc41A6cf876EAf",
   );
   const functionCall = marketPlace.methods
     .placeOffering(
       offerer,
       hostContract,
       tokenId,
-      web3.utils.toWei(price, "ether")
+      web3.utils.toWei(price, "ether"),
     )
     .encodeABI();
   transactionBody = {
@@ -59,7 +59,7 @@ Moralis.Cloud.define("placeOffering", async (request) => {
   };
   signedTransaction = await web3.eth.accounts.signTransaction(
     transactionBody,
-    coordinatorKey
+    coordinatorKey,
   );
   logger.info("-------------------------------");
   logger.info(JSON.stringify(signedTransaction));

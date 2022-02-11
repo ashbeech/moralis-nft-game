@@ -69,7 +69,7 @@ Promise.all(promiseArray).then(() => {
         API_KEY, // <-- this is in .env
         fileCID,
         totalFiles,
-        _formValues
+        _formValues,
       );
     })
     .catch((err) => {

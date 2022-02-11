@@ -125,7 +125,7 @@ export default function Hashtro({ isServerInfo }) {
       );
     } else {
       //console.log(hashtroData);
-      let now = new Date();
+      /*       let now = new Date();
       let deathStatus = "ALIVE";
 
       let deathTime = null;
@@ -142,38 +142,28 @@ export default function Hashtro({ isServerInfo }) {
       if (now > deathTime) {
         deathStatus = "DEAD";
       }
-
+ */
       return (
         <VStack>
           <Box mt={4} mb={4}>
             <Heading as="h4" size="md">
-              {hashtroData.name}
+              {hashtroData.id}
             </Heading>
           </Box>
           <Box>
-            {/* <-- TEMPORARY: static link and will be loaded from id of NFT's metadata --> */}
-            <Image src={hashtroData.image} />
+            <Text>Level: {hashtroData.attributes.level}</Text>
           </Box>
           <Box>
-            <Text>Status: {deathStatus}</Text>
+            <Text>DNA: {hashtroData.attributes.dna}</Text>
           </Box>
           <Box>
-            <Text>Deathtime: {deathTimeRender(deathTime)}</Text>
+            <Text>Evac: {hashtroData.attributes.evac}</Text>
           </Box>
           <Box>
-            <Text>Last Meal: {lastMeal.toDateString()}</Text>
+            <Text>Rarity: {hashtroData.attributes.rarity}</Text>
           </Box>
           <Box>
-            <Text>ID: {hashtroData.id}</Text>
-          </Box>
-          <Box>
-            <Text>Damage: {hashtroData.attributes.damage}</Text>
-          </Box>
-          <Box>
-            <Text>Power: {hashtroData.attributes.power}</Text>
-          </Box>
-          <Box>
-            <Text>Endurance: {hashtroData.attributes.endurance}</Text>
+            <Text>Metadata: {hashtroData.attributes.tokenURI}</Text>
           </Box>
         </VStack>
       );
@@ -186,12 +176,14 @@ export default function Hashtro({ isServerInfo }) {
     let dataMapping = {
       id: _response.id,
       attributes: {
+        evac: _response.evac,
         tokenURI: _response.tokenURI,
         dna: _response.dna,
         level: _response.level,
         rarity: _response.rarity,
       },
     };
+    setDataFetched(dataMapping); //<-- temp
     setHashtro(dataMapping);
     console.log(dataMapping);
 

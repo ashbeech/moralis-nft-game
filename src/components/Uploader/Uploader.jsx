@@ -110,7 +110,7 @@ export default function Uploader(_isAuthenticated) {
     () => () => {
       files.forEach((file) => URL.revokeObjectURL(file.preview));
     },
-    [files]
+    [files],
   );
 
   // authetication check; we don't want uploads if not logged-in
@@ -375,8 +375,8 @@ export default function Uploader(_isAuthenticated) {
       acceptedFiles.map((file) =>
         Object.assign(file, {
           preview: URL.createObjectURL(file),
-        })
-      )
+        }),
+      ),
     );
   }, []);
 
@@ -409,7 +409,7 @@ export default function Uploader(_isAuthenticated) {
       ...(isDragAccept ? acceptStyle : {}),
       ...(isDragReject ? rejectStyle : {}),
     }),
-    [isDragActive, isDragReject, isDragAccept]
+    [isDragActive, isDragReject, isDragAccept],
   );
 
   const isFileTooLarge =
@@ -445,7 +445,7 @@ export default function Uploader(_isAuthenticated) {
     xAPIKey,
     imageCID,
     _totalFiles,
-    _formValues
+    _formValues,
   ) => {
     let fileDataArray = [];
     ipfsArray = []; // holds all IPFS data
@@ -469,12 +469,12 @@ export default function Uploader(_isAuthenticated) {
       let nftMetadata = generateMetadata(
         id,
         fileDataArray[i].filePath,
-        _formValues
+        _formValues,
       );
       metadataList.push(nftMetadata);
 
       let base64String = Buffer.from(JSON.stringify(metadataList)).toString(
-        "base64"
+        "base64",
       );
 
       // event.target.result contains base64 encoded image
@@ -515,7 +515,7 @@ export default function Uploader(_isAuthenticated) {
                 console.log(err);
               });
           });
-        })
+        }),
       );
     }
   };
@@ -564,7 +564,7 @@ export default function Uploader(_isAuthenticated) {
                     API_KEY,
                     imageCID,
                     totalFiles,
-                    _formValues
+                    _formValues,
                   );
                 })
                 .catch((err) => {
@@ -574,7 +574,7 @@ export default function Uploader(_isAuthenticated) {
                   console.log(err);
                 });
             });
-          })
+          }),
         );
       };
       reader.readAsDataURL(_files[0]);
