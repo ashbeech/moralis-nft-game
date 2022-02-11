@@ -24,8 +24,13 @@ function MenuItems() {
       <Menu.Item key="/uploader">
         <NavLink to="/uploader">⬆️ Uploader</NavLink>
       </Menu.Item>
+      {/*
       <Menu.Item key="/batcher">
         <NavLink to="/batcher">⬆️ Batcher</NavLink>
+      </Menu.Item>
+      */}
+      <Menu.Item key="/updater">
+        <NavLink to="/updater">🔃 Updater</NavLink>
       </Menu.Item>
       {/*
       <Menu.Item key="/wallet">

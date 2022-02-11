@@ -20,7 +20,8 @@ import "antd/dist/antd.css";
 import "./style.css";
 import Hashtro from "components/Hashtro";
 import Uploader from "components/Uploader/Uploader"; // <-- 👀 Currently working on building an IPFS uploader to assist in uploading game assets (incl. image + metadata)
-import Batcher from "components/Uploader/Batcher"; // <-- 👀 Currently working on building an IPFS uploader to assist in uploading game assets (incl. image + metadata)
+//import Batcher from "components/Uploader/Batcher"; // <-- 👀 Currently working on building an IPFS uploader to assist in uploading game assets (incl. image + metadata)
+import Updater from "components/Uploader/Updater"; // <-- 👀 Currently working on building an IPFS uploader to assist in uploading game assets (incl. image + metadata)
 //import QuickStart from "components/QuickStart";
 //import Contract from "components/Contract/Contract";
 //import Text from "antd/lib/typography/Text";
@@ -100,8 +101,11 @@ const App = ({ isServerInfo }) => {
               <Route path="/uploader">
                 <Uploader isAuthenticated={isAuthenticated} />
               </Route>
-              <Route path="/batcher">
+              {/* <Route path="/batcher">
                 <Batcher isAuthenticated={isAuthenticated} />
+              </Route> */}
+              <Route path="/updater">
+                <Updater isAuthenticated={isAuthenticated} />
               </Route>
               <Route path="/wallet">
                 <Wallet />

@@ -153,7 +153,20 @@ contract Character is ERC721URIStorage, Ownable {
         require(ownerOf(_id) == msg.sender || contractOwner == msg.sender);
         _tokenDetails[_id].tokenURI = _tokenURI;
         _setTokenURI(_id, _tokenURI);
+        //char.level++;
     }
+
+    //WIP: updateMetadata w/o
+    /*
+    function updateMetadata(uint256 _id) public {
+        require(_exists(_id), "ERC721URIStorage: URI set of nonexistent token");
+        require(ownerOf(_id) == msg.sender || contractOwner == msg.sender);
+
+
+        _tokenDetails[_id].tokenURI = _tokenURI;
+        _setTokenURI(_id, _tokenURI);
+    }
+    */
 
     /** onlyOwner funcs
      *  - only game creator can run
