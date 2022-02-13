@@ -58,3 +58,23 @@ textarea,
 select {
   font: inherit;
 }
+
+.x {
+  animation: x 6s linear infinite alternate;
+}
+
+.y {
+  animation: y 3s linear infinite alternate;
+}
+
+@keyframes x {
+  100% {
+    transform: translateX(calc(100vw - 200px));
+  }
+}
+
+@keyframes y {
+  100% {
+    transform: translateY(calc(50vh - 100px));
+  }
+}

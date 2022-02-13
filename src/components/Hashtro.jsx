@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Moralis } from "moralis";
 import { useWeb3ExecuteFunction } from "react-moralis";
 //import { abi as contractAbi } from "../constants/abis/Token.json";
 import { abi as charContractAbi } from "../constants/abis/Character.json";
@@ -12,12 +13,14 @@ import {
   Text,
   VStack,
   Button,
-  Image,
+  Link,
   Input,
   Heading,
   FormControl,
   FormErrorMessage,
 } from "@chakra-ui/react";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
+
 import { Formik, Field, Form } from "formik";
 const { default: axios } = require("axios");
 
@@ -29,10 +32,12 @@ export default function Hashtro({ isServerInfo }) {
   // Hashtro data
   const [hashtroId, setHashtroId] = useState(null);
   const [hashtroData, setHashtro] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [dataFetched, setDataFetched] = useState();
   const [interactionData, setInteractionData] = useState();
   const [showErrorMessage, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showMessage, setMessage] = useState(false);
   const [initialFormValues, setInitialFormValues] = useState({
     id: null,
   });
@@ -94,6 +99,27 @@ export default function Hashtro({ isServerInfo }) {
     }
   }
   */
+
+  const messageMarkup = (
+    <Box>
+      <Alert status="success">
+        <AlertIcon />
+        <Box flex="1">
+          <AlertTitle>Levelled-up!</AlertTitle>
+          <AlertDescription display="block">
+            Character Now Level{" "}
+            {hashtroData ? hashtroData.attributes.level : ""}! 🏅
+          </AlertDescription>
+        </Box>
+        <CloseButton
+          position="absolute"
+          right="8px"
+          top="8px"
+          onClick={() => setMessage(false)}
+        />
+      </Alert>
+    </Box>
+  );
 
   const errorMarkup = (_error) => {
     return (
@@ -163,7 +189,12 @@ export default function Hashtro({ isServerInfo }) {
             <Text>Rarity: {hashtroData.attributes.rarity}</Text>
           </Box>
           <Box>
-            <Text>Metadata: {hashtroData.attributes.tokenURI}</Text>
+            <Text>
+              Metadata:{" "}
+              <Link href={hashtroData.attributes.tokenURI} isExternal>
+                link to JSON <ExternalLinkIcon mx="2px" />
+              </Link>
+            </Text>
           </Box>
         </VStack>
       );
@@ -202,8 +233,8 @@ export default function Hashtro({ isServerInfo }) {
       }); */
   }
 
-  // interact with Hastro token (NFT)
-  async function feedData(_id) {
+  /*   // interact with Hastro token (NFT)
+  async function levelData(_id) {
     const options = {
       abi: charContractAbi,
       contractAddress: CHAR_CONTRACT,
@@ -219,6 +250,22 @@ export default function Hashtro({ isServerInfo }) {
       onComplete: () => console.log("Character Levelled-up"),
       onError: (error) => console.log("Error", error),
     });
+  }
+ */
+  async function levelData(_hostContract, _tokenId) {
+    const web3 = await Moralis.enableWeb3();
+    const params = {
+      hostContract: _hostContract,
+      tokenId: _tokenId,
+    };
+    const signedTransaction = await Moralis.Cloud.run("levelUp", params);
+    const fulfillTx = await web3.eth.sendSignedTransaction(
+      signedTransaction.rawTransaction,
+    );
+    setMessage(true);
+    fetchData(hashtroId);
+    setLoading(false);
+    console.log(fulfillTx);
   }
 
   // fetch Hastro token (NFT)
@@ -272,10 +319,12 @@ export default function Hashtro({ isServerInfo }) {
     //e.preventDefault();
     setHashtroId(e.id);
   };
-  function onFeed(e) {
+  function onLevelUp(e) {
     e.preventDefault();
+    setLoading(true);
+
     if (hashtroId) {
-      feedData(hashtroId);
+      levelData(CHAR_CONTRACT, hashtroId);
     }
   }
   // UI
@@ -297,6 +346,7 @@ export default function Hashtro({ isServerInfo }) {
             {(props) => (
               <Form ref={form}>
                 <Box mb={2}>
+                  {showMessage ? messageMarkup : ""}
                   {showErrorMessage ? errorMarkup(errorMessage) : ""}
                 </Box>
                 <Field name="id">
@@ -332,17 +382,21 @@ export default function Hashtro({ isServerInfo }) {
                 >
                   Fetch
                 </Button>
-                <Button
-                  name="feed"
-                  onClick={onFeed}
-                  disabled={!dataFetched || isFetching ? true : false}
-                  colorScheme="purple"
-                  size="lg"
-                  variant="solid"
-                  leftIcon={"⇧"}
-                >
-                  Level Up
-                </Button>
+                <Box className="x">
+                  <Button
+                    name="levelup"
+                    onClick={onLevelUp}
+                    isLoading={loading}
+                    disabled={!dataFetched || loading ? true : false}
+                    colorScheme="purple"
+                    size="lg"
+                    variant="solid"
+                    leftIcon={"⇧"}
+                    className="y"
+                  >
+                    Level Up
+                  </Button>
+                </Box>
               </Form>
             )}
           </Formik>

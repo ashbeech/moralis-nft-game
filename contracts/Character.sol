@@ -125,13 +125,27 @@ contract Character is ERC721URIStorage, Ownable {
   }
 
   /** levelling-up func
-   *
+   * level-up token_id (char: level 1 -> level 2) via cloud function
+   * 1/2 front-end calls cloud
+   * 2/2 cloud functions call this func in contract
+   * token id is a dependancy
+   * only allows contract host to run (onlyOwner)
+   * onlyOwner could be other specific wallet address or one a number within a role
    */
-  function levelUp(uint256 _charId) public {
-    require(ownerOf(_charId) == msg.sender);
+  function levelUp(uint256 _charId) public onlyOwner {
     Char storage char = _tokenDetails[_charId];
     char.level++;
   }
+
+  /*
+    // alternative method to single level++ iteration
+    // also employs example of token owner condition
+    function levelUp(uint256 _charId, uint8 level) public {
+        require(ownerOf(_charId) == msg.sender);
+        Char storage char = _tokenDetails[_charId];
+        char.level = char.level + level;
+    }
+  */
 
   /** contract-level metadata for OpenSea.
    *  - update for collection-specific metadata.

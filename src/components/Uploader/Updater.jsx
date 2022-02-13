@@ -25,23 +25,6 @@ export default function Updater() {
     console.log("FORM INPUT:", e);
     //await levelUp(5);
   };
-  /*
-  // goal: level-up token_id (char: level 1 -> level 2) via cloud function 
-  // 1/2 front-end calls cloud
-  // 2/2 cloud functions call contract
-      function placeOffering (address _offerer, address _hostContract, uint _tokenId, uint _price) external {
-        require (msg.sender == operator, "Only operator dApp can create offerings");
-        bytes32 offeringId = keccak256(abi.encodePacked(offeringNonce, _hostContract, _tokenId));
-        offeringRegistry[offeringId].offerer = _offerer;
-        offeringRegistry[offeringId].hostContract = _hostContract;
-        offeringRegistry[offeringId].tokenId = _tokenId;
-        offeringRegistry[offeringId].price = _price;
-        offeringNonce += 1;
-        ERC721 hostContract = ERC721(offeringRegistry[offeringId].hostContract);
-        string memory uri = hostContract.tokenURI(_tokenId);
-        emit  OfferingPlaced(offeringId, _hostContract, _offerer, _tokenId, _price, uri);
-    }
-  */
 
   return (
     <Box className="container text-center mt-5">
