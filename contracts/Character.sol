@@ -1,11 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-/* import "../node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "../node_modules/@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "../node_modules/@openzeppelin/contracts/utils/Counters.sol";
-import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
- */
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
@@ -17,15 +12,17 @@ contract Character is ERC721URIStorage, Ownable {
 
   Counters.Counter private _tokenIds;
 
-  uint256 fee = 0.00 ether;
-  uint256 public maxSupply = 10000;
-  uint256 public maxMintAmountPerTx = 1;
-  uint256 public perAddressLimit = 100;
-  string public notRevealedUri = "ipfs://INSERT_YOUR_CID/character-hidden.json";
-  bool public paused = false;
-  bool public revealed = true;
-  address public contractOwner;
+  // these are all optional params we might create for our characters
+  uint256 fee = 0.00 ether; // <-- any fees we want to change on txs
+  uint256 public constant maxSupply = 10000; // <-- max supply of tokens
+  uint256 public maxMintAmountPerTx = 1; // <-- max mints per tx
+  uint256 public perAddressLimit = 100; // <-- max
+  string public notRevealedUri = "ipfs://INSERT_YOUR_CID/character-hidden.json"; // <-- link to metadata for e.g. hidden opensea listing of token
+  bool public paused = false; // <-- stop interaction witb contract
+  bool public revealed = true; // <-- is the collection revealled yet?
+  address public contractOwner; // <-- game dev/studio wallet address
 
+  // charcter traits (on-chain)
   // id, dna, level, rarity, evac, tokenURI
   struct Char {
     uint256 id;
@@ -36,15 +33,17 @@ contract Character is ERC721URIStorage, Ownable {
     string tokenURI;
   }
   // mapping char to token count
-  Char[10000] public _tokenDetails;
+  Char[maxSupply] public _tokenDetails;
+  // set-up event for emitting once character minted to read out values
   event NewChar(address indexed owner, uint256 id, uint256 dna);
-  mapping(address => uint256) public addressMintedBalance;
+  mapping(address => uint256) public addressMintedBalance; // <-- used to check how many an account has minted for `maxMintAmountPerTx`
 
+  // we begin constructing token: ERC721 standard
   constructor() ERC721("Character", "CHAR") {
-    contractOwner = msg.sender;
+    contractOwner = msg.sender; // <-- the constructor
   }
 
-  // helpers
+  // utils/helper funcs
   function _createRandomNum(uint256 _mod) internal view returns (uint256) {
     uint256 randomNum = uint256(
       keccak256(abi.encodePacked(block.timestamp, msg.sender))
@@ -90,6 +89,8 @@ contract Character is ERC721URIStorage, Ownable {
     _;
   }
 
+  // READ FUNCS
+
   /** func to get token details
    *  - token by id
    *  - returns array
@@ -124,6 +125,15 @@ contract Character is ERC721URIStorage, Ownable {
     return _tokenDetails[_id].tokenURI;
   }
 
+  /** contract-level metadata for OpenSea.
+   *  - update for collection-specific metadata.
+   */
+  function contractURI() public pure returns (string memory) {
+    return "ipfs://INSERT_YOUR_CID/characters.json"; // Contract-level metadata
+  }
+
+  // WRITE FUNCS
+
   /** levelling-up func
    * level-up token_id (char: level 1 -> level 2) via cloud function
    * 1/2 front-end calls cloud
@@ -137,23 +147,6 @@ contract Character is ERC721URIStorage, Ownable {
     char.level++;
   }
 
-  /*
-    // alternative method to single level++ iteration
-    // also employs example of token owner condition
-    function levelUp(uint256 _charId, uint8 level) public {
-        require(ownerOf(_charId) == msg.sender);
-        Char storage char = _tokenDetails[_charId];
-        char.level = char.level + level;
-    }
-  */
-
-  /** contract-level metadata for OpenSea.
-   *  - update for collection-specific metadata.
-   */
-  function contractURI() public pure returns (string memory) {
-    return "ipfs://INSERT_YOUR_CID/characters.json"; // Contract-level metadata
-  }
-
   /** metadata versioning func
    *  - update _tokenURI to metadata (previous version of metadata remains accessible)
    *  - only token owner can execute func
@@ -165,18 +158,6 @@ contract Character is ERC721URIStorage, Ownable {
     _setTokenURI(_id, _tokenURI);
     //char.level++;
   }
-
-  //WIP: updateMetadata w/o
-  /*
-    function updateMetadata(uint256 _id) public {
-        require(_exists(_id), "ERC721URIStorage: URI set of nonexistent token");
-        require(ownerOf(_id) == msg.sender || contractOwner == msg.sender);
-
-
-        _tokenDetails[_id].tokenURI = _tokenURI;
-        _setTokenURI(_id, _tokenURI);
-    }
-    */
 
   /** onlyOwner funcs
      *  - only game creator can run
