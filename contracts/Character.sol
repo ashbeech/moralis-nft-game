@@ -20,7 +20,6 @@ contract Character is ERC721URIStorage, Ownable {
   string public notRevealedUri = "ipfs://INSERT_YOUR_CID/character-hidden.json"; // <-- link to metadata for e.g. hidden opensea listing of token
   bool public paused = false; // <-- stop interaction witb contract
   bool public revealed = true; // <-- is the collection revealled yet?
-  address public contractOwner; // <-- game dev/studio wallet address
 
   // charcter traits (on-chain)
   // id, dna, level, rarity, evac, tokenURI
@@ -39,9 +38,7 @@ contract Character is ERC721URIStorage, Ownable {
   mapping(address => uint256) public addressMintedBalance; // <-- used to check how many an account has minted for `maxMintAmountPerTx`
 
   // we begin constructing token: ERC721 standard
-  constructor() ERC721("Character", "CHAR") {
-    contractOwner = msg.sender; // <-- the constructor
-  }
+  constructor() ERC721("Character", "CHAR") {}
 
   // utils/helper funcs
   function _createRandomNum(uint256 _mod) internal view returns (uint256) {
@@ -134,44 +131,15 @@ contract Character is ERC721URIStorage, Ownable {
 
   // WRITE FUNCS
 
-  /** levelling-up func
-   * level-up token_id (char: level 1 -> level 2) via cloud function
-   * 1/2 front-end calls cloud
-   * 2/2 cloud functions call this func in contract
-   * token id is a dependancy
-   * only allows contract host to run (onlyOwner)
-   * onlyOwner could be other specific wallet address or one a number within a role
+  /**
+   * func to mint/create token
+   *  - amount to be minted/created
+   *  - set link to token's metadata
+   *  - emits array of new token's details
    */
-  function levelUp(uint256 _charId) public onlyOwner {
-    Char storage char = _tokenDetails[_charId];
-    char.level++;
-  }
-
-  /** metadata versioning func
-   *  - update _tokenURI to metadata (previous version of metadata remains accessible)
-   *  - only token owner can execute func
-   */
-  function updateMetadata(uint256 _id, string memory _tokenURI) public {
-    require(_exists(_id), "ERC721URIStorage: URI set of nonexistent token");
-    require(ownerOf(_id) == msg.sender || contractOwner == msg.sender);
-    _tokenDetails[_id].tokenURI = _tokenURI;
-    _setTokenURI(_id, _tokenURI);
-    //char.level++;
-  }
-
-  /** onlyOwner funcs
-     *  - only game creator can run
-     *  - strictly for versioning only 
-
-    /** func to mint/create token
-     *  - amount to be minted/created
-     *  - set link to token's metadata
-     *  - emits array of new token's details
-     */
   function mintToken(uint256 _mintAmount, string memory _tokenURI)
     public
     payable
-    onlyOwner
     mintCompliance(_mintAmount)
   {
     _tokenIds.increment();
@@ -193,7 +161,6 @@ contract Character is ERC721URIStorage, Ownable {
       _tokenURI
     );
 
-    //"ipfs://INSERT_YOUR_CID/0000000000000000000000000000000000000000000000000000000000000001.json"
     _tokenDetails[newCharID] = newChar;
 
     // check for addresses already minted
@@ -204,7 +171,28 @@ contract Character is ERC721URIStorage, Ownable {
     emit NewChar(msg.sender, newCharID, randDna);
   }
 
-  function setmaxMintAmount(
+  /** onlyOwner (contractOwner address) funcs
+    
+   * metadata versioning
+   *  - update _tokenURI to metadata (previous version of metadata remains accessible)
+   *  - only contract owner can execute func
+   */
+  function updateMetadata(
+    uint256 _id,
+    string memory _uri,
+    bool _levelUp
+  ) public onlyOwner {
+    require(_exists(_id), "ERC721URIStorage: URI set of nonexistent token");
+    _tokenDetails[_id].tokenURI = _uri;
+    _setTokenURI(_id, _uri);
+    // level up
+    if (_levelUp == true) {
+      Char storage char = _tokenDetails[_id];
+      char.level++;
+    }
+  }
+
+  function setMaxMintAmountPerTx(
     uint256 _newPerAddressLimit,
     uint256 _maxMintAmountPerTx
   ) public onlyOwner {
@@ -221,7 +209,7 @@ contract Character is ERC721URIStorage, Ownable {
   }
 
   function withdraw() external payable onlyOwner {
-    // This will transfer the remaining contract balance to the owner.
+    // This will transfer the remaining contract balance to the owner (contractOwner address).
     // Do not remove this otherwise you will not be able to withdraw the funds.
     // =============================================================================
     (bool os, ) = payable(owner()).call{value: address(this).balance}("");
