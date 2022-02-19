@@ -20,6 +20,7 @@ contract Character is ERC721URIStorage, Ownable {
   string public notRevealedUri = "ipfs://INSERT_YOUR_CID/character-hidden.json"; // <-- link to metadata for e.g. hidden opensea listing of token
   bool public paused = false; // <-- stop interaction witb contract
   bool public revealed = true; // <-- is the collection revealled yet?
+  address public contractOwner; // <-- game dev/studio wallet address
 
   // charcter traits (on-chain)
   // id, dna, level, rarity, evac, tokenURI
@@ -38,7 +39,9 @@ contract Character is ERC721URIStorage, Ownable {
   mapping(address => uint256) public addressMintedBalance; // <-- used to check how many an account has minted for `maxMintAmountPerTx`
 
   // we begin constructing token: ERC721 standard
-  constructor() ERC721("Character", "CHAR") {}
+  constructor() ERC721("Character", "CHAR") {
+    contractOwner = msg.sender; // <-- the constructor
+  }
 
   // utils/helper funcs
   function _createRandomNum(uint256 _mod) internal view returns (uint256) {
@@ -171,6 +174,18 @@ contract Character is ERC721URIStorage, Ownable {
     emit NewChar(msg.sender, newCharID, randDna);
   }
 
+  /** onlyOwner and/or ownerOf
+   * metadata versioning
+   *  - update _tokenURI to metadata (previous version of metadata remains accessible)
+   *  - only contract owner or token owner can execute func
+   */
+  function updateBio(uint256 _id, string memory _uri) public {
+    require(_exists(_id), "ERC721URIStorage: URI set of nonexistent token");
+    require(ownerOf(_id) == msg.sender || contractOwner == msg.sender);
+    _tokenDetails[_id].tokenURI = _uri;
+    _setTokenURI(_id, _uri);
+  }
+
   /** onlyOwner (contractOwner address) funcs
     
    * metadata versioning
@@ -183,11 +198,11 @@ contract Character is ERC721URIStorage, Ownable {
     bool _levelUp
   ) public onlyOwner {
     require(_exists(_id), "ERC721URIStorage: URI set of nonexistent token");
-    _tokenDetails[_id].tokenURI = _uri;
+    Char storage char = _tokenDetails[_id];
+    char.tokenURI = _uri;
     _setTokenURI(_id, _uri);
     // level up
     if (_levelUp == true) {
-      Char storage char = _tokenDetails[_id];
       char.level++;
     }
   }

@@ -53,10 +53,6 @@ contract Object is ERC1155, Ownable {
    */
   modifier spawnCompliance(uint256 _mintAmount) {
     require(!paused, "The contract is paused!");
-
-    //require(msg.value > 0);
-    require(msg.value <= msg.sender.balance, "Insufficient balance.");
-
     // condition: total minted + this potential tx is under maxsupply
     require(
       _tokenIDS.current() + _mintAmount <= maxSupply,
@@ -99,17 +95,13 @@ contract Object is ERC1155, Ownable {
   // WRITE FUNCS
 
   // single mint is our publicly exposed func, _mint is parent contract's mint func
-  function spawn(uint256 _id, uint256 _amount)
-    public
-    payable
-    spawnCompliance(_amount)
-  {
+  function spawn(uint256 _id, uint256 _amount) public onlyOwner {
     for (uint256 i = 0; i < _amount; i++) {
       // only owner address can mint owner_address, token_id, bytecode
       _tokenDetails[tokensInCirculation] = Asteroid(
         _id,
         block.timestamp,
-        0,
+        1,
         uri(_id)
       );
       _mint(msg.sender, tokensInCirculation, 1, ""); // <- '1' in 1155 = NFT
@@ -180,13 +172,13 @@ contract Object is ERC1155, Ownable {
     string memory _uri,
     bool _level
   ) external onlyOwner {
+    Asteroid storage aroid = _tokenDetails[_id];
+    aroid.tokenURI = _uri;
+    emit URI(_uri, _id);
+    // level up
     if (_level == true) {
-      Asteroid storage aroid = _tokenDetails[_id];
       aroid.level++;
     }
-    _tokenDetails[_id].tokenURI = _uri;
-    tokenURI[_id] = _uri;
-    emit URI(_uri, _id);
   }
 
   function reveal() public onlyOwner {

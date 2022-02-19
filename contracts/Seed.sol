@@ -19,15 +19,14 @@ contract Seed is ERC1155, Ownable {
   // Seed struct can be used within arrays and mappings
   struct Seedling {
     uint256 id;
-    uint8 level;
+    uint8 status;
+    string tokenURI;
   }
   // mapping that reference each Seed by their token id
   mapping(uint256 => Seedling) private _tokenDetails; // 0 -> however many get created
-  mapping(uint256 => string) public tokenURI;
   string public notRevealedUri =
     "ipfs://QmPJvYnCSeZUyqdiNpEgv6KWBVWK1SEh2Y8X1uScXWCCYg/seeds-hidden.json";
   bool public paused = false;
-  bool public revealed = false;
 
   string public name;
   string public symbol;
@@ -45,18 +44,10 @@ contract Seed is ERC1155, Ownable {
 
   // func to get tokenURI
   function uri(uint256 _id) public view override returns (string memory) {
-    if (revealed == true) {
-      return tokenURI[_id];
-    } else {
-      return notRevealedUri;
-    }
+    return _tokenDetails[_id].tokenURI;
   }
 
   // WRITE FUNCS
-
-  function setNotRevealedURI(string memory _notRevealedURI) public onlyOwner {
-    notRevealedUri = _notRevealedURI;
-  }
 
   // single mint
   function spawn(
@@ -111,8 +102,17 @@ contract Seed is ERC1155, Ownable {
    *  - update _tokenURI to metadata (previous version of metadata remains accessible)
    *  - only contract owner can execute func
    */
-  function updateMetadata(uint256 _id, string memory _uri) external onlyOwner {
-    tokenURI[_id] = _uri;
+  function updateMetadata(
+    uint256 _id,
+    string memory _uri,
+    uint8 _status
+  ) external onlyOwner {
+    Seedling storage seed = _tokenDetails[_id];
+    seed.tokenURI = _uri;
     emit URI(_uri, _id);
+    // status update
+    if (_status > 0) {
+      seed.status = _status;
+    }
   }
 }
