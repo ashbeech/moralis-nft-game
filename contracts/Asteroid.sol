@@ -26,7 +26,6 @@ contract Object is ERC1155, Ownable {
   }
   // mapping that reference each Asteroid by their token id
   mapping(uint256 => Asteroid) private _tokenDetails; // 0 -> however many get created
-  mapping(uint256 => string) public tokenURI;
   string public notRevealedUri =
     "ipfs://QmYjmj6AgVxGvWUck4ufmVCt8FSKPcyPRydAkqmZZA21T3/asteroids-hidden.json";
   bool public paused = false;
@@ -66,7 +65,7 @@ contract Object is ERC1155, Ownable {
   // func to get tokenURI
   function uri(uint256 _id) public view override returns (string memory) {
     if (revealed == true) {
-      return tokenURI[_id];
+      return _tokenDetails[_id].tokenURI;
     } else {
       return notRevealedUri;
     }
@@ -157,30 +156,14 @@ contract Object is ERC1155, Ownable {
     cost = _newCost;
   }
 
-  function setNotRevealedURI(string memory _notRevealedURI) public onlyOwner {
+  /** onlyOwner (contractOwner address) funcs
+   */
+  // set hidden data
+  function setNotHiddenURI(string memory _notRevealedURI) public onlyOwner {
     notRevealedUri = _notRevealedURI;
   }
 
-  /** onlyOwner (contractOwner address) funcs
-    
-   * metadata versioning
-   *  - update _tokenURI to metadata (previous version of metadata remains accessible)
-   *  - only contract owner can execute func
-   */
-  function updateMetadata(
-    uint256 _id,
-    string memory _uri,
-    bool _level
-  ) external onlyOwner {
-    Asteroid storage aroid = _tokenDetails[_id];
-    aroid.tokenURI = _uri;
-    emit URI(_uri, _id);
-    // level up
-    if (_level == true) {
-      aroid.level++;
-    }
-  }
-
+  // reveal hidden data
   function reveal() public onlyOwner {
     if (revealed == true) {
       revealed = false;

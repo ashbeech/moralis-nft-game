@@ -117,12 +117,11 @@ contract Character is ERC721URIStorage, Ownable {
     returns (string memory)
   {
     require(_exists(_id), "ERC721Metadata: URI query for nonexistent token");
-
-    if (revealed == false) {
+    if (revealed == true) {
+      return _tokenDetails[_id].tokenURI;
+    } else {
       return notRevealedUri;
     }
-
-    return _tokenDetails[_id].tokenURI;
   }
 
   /** contract-level metadata for OpenSea.
