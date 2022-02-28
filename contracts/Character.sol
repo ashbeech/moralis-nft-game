@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.0; // <-- version directive
 
+// imports
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
@@ -40,7 +41,7 @@ contract Character is ERC721URIStorage, Ownable {
 
   // we begin constructing token: ERC721 standard
   constructor() ERC721("Character", "CHAR") {
-    contractOwner = msg.sender; // <-- the constructor
+    contractOwner = msg.sender; // <-- the game dev
   }
 
   // utils/helper funcs
