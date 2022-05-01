@@ -471,8 +471,8 @@ export default function Uploader(_isAuthenticated) {
         fileDataArray[i].filePath,
         _formValues,
       );
-//       metadataList.push(nftMetadata);
-      metadataList=nftMetadata
+      //       metadataList.push(nftMetadata);
+      metadataList = nftMetadata;
 
       let base64String = Buffer.from(JSON.stringify(metadataList)).toString(
         "base64",
