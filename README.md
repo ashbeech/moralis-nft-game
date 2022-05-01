@@ -1,11 +1,9 @@
 # `NFT Game Logic Sandbox`
 
-### WARNING: ACTIVE WORK IN PROGRESS; CODE MARKED FOR COMPLETE RE-WORKING.
+### WARNING: ACTIVE WORK IN PROGRESS; CODE MARKED FOR COMPLETE RE-WORK.
 
-That being said, the principles demonstrated in this codebase still apply, but could be handled and demonstrated more elegantly.
-With the repo in its current form, it's recommended that you first authenticate as a user before testing its web3 functionality i.e. loading NFT assets from the included contract won't work unless logged-in/authenticated.
-
-> React components and hooks for fast testing game logic with [Moralis](https://moralis.io?utm_source=ashbeech&utm_medium=readme&utm_campaign=ethereum-boilerplate).
+> That being said, the principles demonstrated in this codebase still apply, but could be handled and demonstrated more elegantly.
+> With the repo in its current form, it's recommended that you first authenticate as a user before testing its web3 functionality i.e. loading NFT assets from the included contract won't work unless logged-in/authenticated.
 
 ## About
 
