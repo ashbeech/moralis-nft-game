@@ -4,9 +4,9 @@ pragma solidity ^0.8.0;
 //imports for 1155 token contract from Openzeppelin
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
 
 /*
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -26,12 +26,6 @@ contract AssetFactory is ERC1155, AccessControl, Ownable {
   uint256 public expiry; // Whitelist expiry time i.e. 3600
   bool public paused = false; // Switch critical funcs to be paused
 
-  // Asset data storage
-  struct Asset {
-    uint256 id;
-    uint256 timestamp;
-    string tokenURI;
-  }
   // Whitelist data storage
   struct Whitelist {
     address buyer;
